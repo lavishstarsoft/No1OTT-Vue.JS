@@ -1,0 +1,21 @@
+{
+  "showPopup": true,
+  "popupContent": {
+    "title": "",
+    "message": "",
+    "imageUrl": "https://tv.no1news.in/sound/top2.png",
+    "imageWidth": "80%",
+    "imageHeight": "80%", 
+    "buttonText": "",
+    "closeButtonText": "",
+     "soundUrl": ""
+  },
+  "popupSettings": {
+    "autoShow": true,
+    "showOnLoad": true,
+    "delay": 2000,
+    "dismissible": true,
+    "deviceType": "mobile,desktop",
+    "showOnPages": ["Login"]
+  }
+} 

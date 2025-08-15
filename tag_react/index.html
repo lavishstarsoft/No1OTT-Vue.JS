@@ -1,0 +1,1300 @@
+<html lang="en">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   Gulte.com
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Ramabhadra&amp;display=swap" rel="stylesheet"/>
+  <link href="assets/css/style.css" rel="stylesheet"/>
+
+ </head>
+ <body class="bg-[#e6e7e6] overflow-x-hidden">
+  <!-- Top red header -->
+  <header class="bg-[#FF0000]">
+   <div class="max-w-7xl mx-auto px-4 py-3 sm:flex sm:items-center sm:justify-between">
+    <div class="flex items-center justify-between">
+      <button id="menu-btn" class="sm:hidden text-white hover:text-gray-200 focus:outline-none">
+        <i class="fas fa-bars text-2xl"></i>
+      </button>
+      <div class="flex-1 flex justify-center">
+        <img alt="TagTelugu Logo" class="h-8 sm:h-12" src="assets/images/logo.webp"/>
+      </div>
+      <button id="search-btn" class="sm:hidden text-white hover:text-gray-200 focus:outline-none">
+        <i class="fas fa-search text-xl"></i>
+      </button>
+    </div>
+    <div class="hidden sm:flex flex-col items-center space-y-1 sm:space-y-0 sm:flex-row sm:space-x-3">
+     <a class="text-white text-sm flex items-center justify-center w-6 h-6 rounded-full border border-white hover:bg-white hover:text-[#FF0000] transition" href="#">
+      <i class="fab fa-facebook-f">
+      </i>
+     </a>
+     <a class="text-white text-sm flex items-center justify-center w-6 h-6 rounded-full border border-white hover:bg-white hover:text-[#FF0000] transition" href="#">
+      <i class="fab fa-twitter">
+      </i>
+     </a>
+     <a class="text-white text-sm flex items-center justify-center w-6 h-6 rounded-full border border-white hover:bg-white hover:text-[#FF0000] transition" href="#">
+      <i class="fab fa-youtube">
+      </i>
+     </a>
+     <a class="text-white text-sm flex items-center justify-center w-6 h-6 rounded-full border border-white hover:bg-white hover:text-[#FF0000] transition" href="#">
+      <i class="fab fa-instagram">
+      </i>
+     </a>
+    </div>
+   </div>
+  </header>
+  <!-- Navigation bar with horizontal menu -->
+  <nav class="bg-white border-b border-gray-300 relative z-30">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="desktop-nav">
+        <ul class="flex items-center space-x-6 py-2 justify-center overflow-x-auto whitespace-nowrap">
+          <li>
+            <a href="#" class="flex items-center text-gray-700 hover:text-red-500">
+              <i class="fas fa-home text-xl"></i>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="hover:text-red-500">తాజా వార్తలు</a>
+          </li>
+          <li>
+            <a href="#" class="hover:text-red-500">క్రికెట్</a>
+          </li>
+          <li>
+            <a href="#" class="hover:text-red-500">ఎంటర్టైన్మెంట్</a>
+          </li>
+          <li>
+            <a href="#" class="hover:text-red-500">ఆంధ్రప్రదేశ్</a>
+          </li>
+          <li>
+            <a href="#" class="hover:text-red-500">తెలంగాణ</a>
+          </li>
+          <li>
+            <a href="#" class="hover:text-red-500">వెబ్ స్టోరీస్</a>
+          </li>
+          <li>
+            <a href="#" class="hover:text-red-500">మార్కెట్స్</a>
+          </li>
+          <li>
+            <a href="#" class="hover:text-red-500">బిజినెస్</a>
+          </li>
+          <li>
+            <a href="#" class="hover:text-red-500">క్రైమ్</a>
+          </li>
+          <li>
+            <a href="#" class="hover:text-red-500">ట్రెండింగ్</a>
+          </li>
+          <li>
+            <a href="#" class="hover:text-red-500">హెల్త్</a>
+          </li>
+          <li>
+            <a href="#" class="hover:text-red-500">బిజినెస్</a>
+          </li>
+          <li>
+            <a href="#" class="hover:text-red-500">ఫోటోలు</a>
+          </li>
+          <li>
+            <a href="#" class="hover:text-red-500">లైఫ్ స్టైల్</a>
+          </li>
+          <li>
+            <button id="desktop-search-btn" class="hidden sm:flex items-center hover:text-red-500">
+              <i class="fas fa-search text-lg"></i>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- Side menu for mobile -->
+  <div id="overlay"></div>
+  <aside id="side-menu" class="fixed top-0 left-0 w-64 h-full bg-white shadow-lg overflow-y-auto">
+    <div class="flex justify-between items-center p-4 border-b">
+      <h2 class="text-xl font-semibold">Menu</h2>
+      <button aria-label="Close menu" class="text-gray-500 hover:text-gray-700 focus:outline-none" id="close-btn">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="py-2">
+      <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+        <i class="fas fa-home w-6"></i>
+        <span>హోమ్</span>
+      </a>
+    </div>
+
+    <div class="py-2">
+      <div class="px-4 py-2 text-sm font-semibold text-gray-500">వార్తలు</div>
+      <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+        <i class="fas fa-film w-6"></i>
+        <span>సినిమా వార్తలు</span>
+      </a>
+      <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+        <i class="fas fa-globe w-6"></i>
+        <span>జాతీయ వార్తలు</span>
+      </a>
+      <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+        <i class="fas fa-images w-6"></i>
+        <span>ఫోటో గ్యాలరీ</span>
+      </a>
+      <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+        <i class="fas fa-briefcase w-6"></i>
+        <span>సినిమా జాబ్స్</span>
+      </a>
+      <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+        <i class="fas fa-cricket w-6"></i>
+        <span>క్రికెట్</span>
+      </a>
+      <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+        <i class="fas fa-newspaper w-6"></i>
+        <span>రాజకీయ వార్తలు</span>
+      </a>
+    </div>
+
+    <div class="py-2">
+      <div class="px-4 py-2 text-sm font-semibold text-gray-500">OTHER TOOLS</div>
+      <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+        <i class="fas fa-blog w-6"></i>
+        <span>బ్లాగ్</span>
+      </a>
+      <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+        <i class="fas fa-envelope w-6"></i>
+        <span>సంప్రదించండి</span>
+      </a>
+      <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+        <i class="fas fa-sign-in-alt w-6"></i>
+        <span>లాగిన్</span>
+      </a>
+      <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+        <i class="fas fa-user-plus w-6"></i>
+        <span>రిజిస్టర్</span>
+      </a>
+    </div>
+
+    <div class="py-2">
+      <div class="px-4 py-2 text-sm font-semibold text-gray-500">LANGUAGE</div>
+      <a href="#" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+        <i class="fas fa-language w-6"></i>
+        <span>English</span>
+      </a>
+    </div>
+  </aside>
+
+  <!-- Search overlay -->
+  <div id="search-overlay" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm hidden z-50">
+    <div class="w-full h-full flex items-start justify-center pt-16 px-4">
+      <div class="w-full max-w-md sm:max-w-2xl bg-white rounded-lg shadow-lg p-4 transform transition-transform duration-300 scale-95 opacity-0" id="search-container">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-semibold">Search</h2>
+          <button id="close-search" class="text-gray-500 hover:text-gray-700 focus:outline-none">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="relative">
+          <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="ఇక్కడ టైప్ చేయండి...">
+          <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main content area -->
+  <div class="max-w-7xl mx-auto px-4 mt-6">
+    <!-- Breaking News Section -->
+    <div class="hidden sm:block bg-[#ffe5e8] mb-6">
+      <div class="flex items-center gap-4">
+        <div class="flex-shrink-0">
+          <span class="bg-[#FF0000] text-white px-4 py-1 inline-block font-normal text-[14px] relative">Breaking News</span>
+        </div>
+        <div class="flex-1 overflow-hidden">
+          <div class="breaking-news-content">
+            <a href="#" class="text-[15px] hover:text-[#FF0000]">IPL రద్దు అయితే BCCI కి ఎన్ని కోట్ల నష్టం..?</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <main class="max-w-7xl mx-auto px-4 flex flex-col lg:flex-row gap-6 relative z-10">
+   <!-- Left column: Movie News -->
+   <section class="w-full lg:w-1/4 flex flex-col order-2 lg:order-1">
+    <div class="bg-white p-5 news-section flex-1">
+      <h2 class="text-[24px] font-normal text-[#FF0000] mb-4 select-none">
+       Movie News
+      </h2>
+      <ul class="space-y-4 text-[18px] news-list">
+       <li class="news-item flex gap-3">
+        <div class="news-image w-[90px] h-[68px] flex-shrink-0">
+         <img alt="Image of a male actor with red shirt" class="w-full h-full object-cover" height="68" src="https://storage.googleapis.com/a1aa/image/3e1743c3-ce45-4cd5-8d34-48c010b0fe5c.jpg" width="90"/>
+        </div>
+        <div class="news-content flex-1">
+         <a class="font-normal hover:text-[#FF0000]" href="#">
+          యస్ పై ఇఫెక్ట్ 'సర్కారు'
+         </a>
+         <span class="timestamp">1 hour ago</span>
+        </div>
+       </li>
+       <li class="news-item flex gap-3">
+        <div class="news-image w-[90px] h-[68px] flex-shrink-0">
+         <img alt="Image of two actors standing side by side" class="w-full h-full object-cover" height="68" src="https://storage.googleapis.com/a1aa/image/0f08a40f-f084-40f2-af31-8f364fc4e85d.jpg" width="90"/>
+        </div>
+        <div class="news-content flex-1">
+         <a class="font-normal hover:text-[#FF0000]" href="#">
+          క్రికెట్ సిరీస్ - రామ్ వర్సెస్
+         </a>
+         <span class="timestamp">2 hours ago</span>
+        </div>
+       </li>
+       <li class="news-item flex gap-3">
+        <div class="news-image w-[90px] h-[68px] flex-shrink-0">
+         <img alt="Image of a male and female actor in a dramatic scene" class="w-full h-full object-cover" height="68" src="https://storage.googleapis.com/a1aa/image/e56e33dd-1178-43f7-8f79-a5f89b77cb02.jpg" width="90"/>
+        </div>
+        <div class="news-content flex-1">
+         <a class="font-normal hover:text-[#FF0000]" href="#">
+          ఇంటర్స్టింగ్ డే : శ్రీముఖ VS సామ్
+         </a>
+         <span class="timestamp">2 hours ago</span>
+        </div>
+       </li>
+       <li class="news-item flex gap-3">
+        <div class="news-image w-[90px] h-[68px] flex-shrink-0">
+         <img alt="Image of a female actor smiling" class="w-full h-full object-cover" height="68" src="https://storage.googleapis.com/a1aa/image/eee44903-9a12-436f-3a1a-00b519729cb9.jpg" width="90"/>
+        </div>
+        <div class="news-content flex-1">
+         <a class="font-normal hover:text-[#FF0000]" href="#">
+          ఈ అబ్బాయి యాక్టర్ కాదు, డైరెక్టర్ కూడా
+         </a>
+         <span class="timestamp">12 hours ago</span>
+        </div>
+       </li>
+       <li class="news-item flex gap-3">
+        <div class="news-image w-[90px] h-[68px] flex-shrink-0">
+         <img alt="Image of a female actor posing" class="w-full h-full object-cover" height="68" src="https://storage.googleapis.com/a1aa/image/7c0074d5-5400-4728-ca1c-44c85808efd6.jpg" width="90"/>
+        </div>
+        <div class="news-content flex-1">
+         <a class="font-normal hover:text-[#FF0000]" href="#">
+          డ్రామా రాసే మీరే ఆడవాళ్లే ఎక్కువ
+         </a>
+         <span class="timestamp">15 hours ago</span>
+        </div>
+       </li>
+       <li class="news-item flex gap-3">
+        <div class="news-image w-[90px] h-[68px] flex-shrink-0">
+         <img alt="Image of a male actor with beard" class="w-full h-full object-cover" height="68" src="https://storage.googleapis.com/a1aa/image/e386513d-2019-42bd-73f1-e749c195dd6b.jpg" width="90"/>
+        </div>
+        <div class="news-content flex-1">
+         <a class="font-normal hover:text-[#FF0000]" href="#">
+          కడప టికెట్ ముంచెత్తిన జాగిరా
+         </a>
+         <span class="timestamp">15 hours ago</span>
+        </div>
+       </li>
+       <li class="news-item flex gap-3">
+        <div class="news-image w-[90px] h-[68px] flex-shrink-0">
+         <img alt="Image of two male actors posing" class="w-full h-full object-cover" height="68" src="https://storage.googleapis.com/a1aa/image/f2c7ec63-2fdc-49e4-4f72-f7fd6d897ba2.jpg" width="90"/>
+        </div>
+        <div class="news-content flex-1">
+         <a class="font-normal hover:text-[#FF0000]" href="#">
+          విడుదల వేడుకల్లో నాగబాబు, రామ్
+         </a>
+         <span class="timestamp">20 hours ago</span>
+        </div>
+       </li>
+       <li class="news-item flex gap-3">
+        <div class="news-image w-[90px] h-[68px] flex-shrink-0">
+         <img alt="Image of a male actor with sunglasses" class="w-full h-full object-cover" height="68" src="https://storage.googleapis.com/a1aa/image/af9fc2f8-e214-4efd-f6cf-d3619617557c.jpg" width="90"/>
+        </div>
+        <div class="news-content flex-1">
+         <a class="font-normal hover:text-[#FF0000]" href="#">
+          సుందరి కొడుకు బంధం యాదవులవారితో
+         </a>
+         <span class="timestamp">20 hours ago</span>
+        </div>
+       </li>
+       <li class="news-item flex gap-3">
+        <div class="news-image w-[90px] h-[68px] flex-shrink-0">
+         <img alt="Image of a male actor with beard and glasses" class="w-full h-full object-cover" height="68" src="https://storage.googleapis.com/a1aa/image/d1777963-2f70-45e6-b26d-8e015ed78506.jpg" width="90"/>
+        </div>
+        <div class="news-content flex-1">
+         <a class="font-normal hover:text-[#FF0000]" href="#">
+          అయితే ..........నాగార్జున
+         </a>
+         <span class="timestamp">21 hours ago</span>
+        </div>
+       </li>
+       <li class="news-item flex gap-3">
+        <div class="news-image w-[90px] h-[68px] flex-shrink-0">
+         <img alt="Image of a male actor in action scene" class="w-full h-full object-cover" height="68" src="https://images.tv9telugu.com/wp-content/uploads/2023/05/devara.jpg?w=1280&enlarge=true" width="90"/>
+        </div>
+        <div class="news-content flex-1">
+         <a class="font-normal hover:text-[#FF0000]" href="#">
+          'దేవర' నుంచి అప్‌డేట్.. ఎన్టీఆర్ ఫైట్ సీన్స్ లీక్!
+         </a>
+         <span class="timestamp">22 hours ago</span>
+        </div>
+       </li>
+      </ul>
+      <a href="#" class="read-more-btn">మరిన్ని వార్తలు</a>
+    </div>
+    <!-- Ad Section below Movie News -->
+    <div class="bg-white p-4 mt-5">
+      <div class="flex justify-center">
+        <img 
+          src="https://storage.googleapis.com/a1aa/image/582d2a82-ea30-42bb-3a7a-48e4d787c8c1.jpg" 
+          alt="Advertisement" 
+          class="w-full h-auto object-contain"
+        />
+      </div>
+    </div>
+   </section>
+   <!-- Middle column: Main news and ads -->
+   <section class="w-full lg:w-2/4 flex flex-col space-y-5 order-1 lg:order-2">
+    <!-- Advanced Carousel -->
+    <div class="advanced-carousel relative h-[calc(100vw*9/16)] sm:h-[400px] group overflow-hidden">
+      <!-- Progress Bar -->
+      <div class="absolute top-0 left-0 w-full h-1 bg-gray-200 z-20 overflow-hidden">
+        <div class="progress-bar h-full bg-red-600 w-0 transition-all duration-[7000ms] ease-linear transform origin-left"></div>
+      </div>
+
+      <!-- Slides Container -->
+      <div class="slides-container h-full relative">
+        <!-- Image Slide -->
+        <div class="carousel-slide absolute inset-0 opacity-100 transform transition-all duration-1000 ease-in-out" data-slide="1">
+          <img 
+            src="https://images.tv9telugu.com/wp-content/uploads/2025/05/vcsajjanar.jpg" 
+            alt="Man wearing sunglasses smoking and woman smiling" 
+            class="w-full h-full object-cover"
+          />
+          <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 via-black/50 to-transparent pt-24 pb-6 px-4">
+            <h3 class="text-white text-base sm:text-[22px] font-normal leading-snug">
+              భారత్‌-పాక్‌ ఉద్రిక్తతల వేల..సైబర్‌ నేరగాళ్ల కొత్త దందా.. ప్రజలు అప్రమత్తంగా ఉండాలని సజ్జనార్ హెచ్చరిక!
+            </h3>
+          </div>
+        </div>
+        
+        <div class="carousel-slide absolute inset-0 opacity-0 transform translate-x-full transition-all duration-1000 ease-in-out" data-slide="2">
+          <img 
+            src="https://storage.googleapis.com/a1aa/image/0f3fb270-8790-45d6-f4c1-1b4143746a75.jpg" 
+            alt="Man wearing sunglasses smoking and woman smiling" 
+            class="w-full h-full object-cover"
+          />
+          <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 via-black/50 to-transparent pt-24 pb-6 px-4">
+            <h3 class="text-white text-base sm:text-[22px] font-normal leading-snug">
+              ఇంటర్స్టింగ్ డే : శ్రీముఖ VS సామ్
+            </h3>
+          </div>
+        </div>
+        <!-- Video Slide -->
+        <div class="carousel-slide absolute inset-0 opacity-0 transform translate-x-full transition-all duration-1000 ease-in-out" data-slide="3">
+          <div class="w-full h-full relative">
+            <div id="youtube-player" class="w-full h-full">
+              <!-- YouTube iframe will be inserted here by JS -->
+            </div>
+            <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/90 via-black/50 to-transparent pt-24 pb-6 px-4">
+              <h3 class="text-white text-base sm:text-[22px] font-normal leading-snug">
+                యూట్యూబ్ వీడియో
+              </h3>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Controls -->
+      <button class="nav-btn prev absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10 hover:bg-black/70">
+        <i class="fas fa-chevron-left text-sm sm:text-base"></i>
+      </button>
+      <button class="nav-btn next absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10 hover:bg-black/70">
+        <i class="fas fa-chevron-right text-sm sm:text-base"></i>
+      </button>
+
+      <!-- Slide Indicators -->
+      <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
+        <button class="indicator w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white/50 hover:bg-white/100 transition-all duration-700" data-slide="1"></button>
+        <button class="indicator w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white/50 hover:bg-white/100 transition-all duration-700" data-slide="2"></button>
+        <button class="indicator w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white/50 hover:bg-white/100 transition-all duration-700" data-slide="3"></button>
+      </div>
+    </div>
+    <!-- Ad banner below main image -->
+    <div class="bg-white p-4">
+      <!-- Tabs -->
+      <div class="mb-4 border-b border-gray-200">
+        <div class="flex">
+          <button onclick="switchTab('topNews')" id="topNewsTab" class="relative px-8 py-3 text-[15px] font-medium text-[#FF0000] after:content-[''] after:absolute after:bottom-[-1px] after:left-0 after:w-full after:h-[2px] after:bg-[#FF0000]">
+            <span class="flex items-center gap-2">
+              <i class="fas fa-newspaper text-sm"></i>
+              Top News
+            </span>
+          </button>
+          <button onclick="switchTab('trending')" id="trendingTab" class="relative px-8 py-3 text-[15px] font-medium text-gray-500 hover:text-[#FF0000] transition-colors duration-200">
+            <span class="flex items-center gap-2">
+              <i class="fas fa-chart-line text-sm"></i>
+              Trending
+            </span>
+          </button>
+        </div>
+      </div>
+      
+      <!-- News Items -->
+      <div id="topNews" class="space-y-4">
+        <!-- News Item 1 -->
+        <div class="flex gap-4">
+          <div class="w-1/3">
+            <img src="https://images.tv9telugu.com/wp-content/uploads/2025/04/thug-life-film.jpg" alt="Defence News" class="w-full h-[120px] object-cover rounded"/>
+          </div>
+          <div class="w-2/3">
+            <h3 class="text-lg font-medium mb-2">భారత్, పాక్ వార్ ఎఫెక్ట్.. కమల్ హాసన్ సినిమా ఆడియో రిలీజ్ ఈవెంట్ రద్దు..</h3>
+            <span class="text-[#FF0000] text-sm">తాజా వార్తలు</span>
+          </div>
+        </div>
+        
+        <!-- News Item 2 -->
+        <div class="flex gap-4">
+          <div class="w-1/3">
+            <img src="https://images.tv9telugu.com/wp-content/uploads/2025/05/ravi-mohan.jpg" alt="Entertainment News" class="w-full h-[120px] object-cover rounded"/>
+          </div>
+          <div class="w-2/3">
+            <h3 class="text-lg font-medium mb-2">భార్యతో మనస్పర్థలు.. మళ్లీ ఆ సింగర్ తో కలిసి కనిపించిన స్టార్ హీరో.. </h3>
+            <span class="text-[#FF0000] text-sm">వినోదం</span>
+          </div>
+        </div>
+        
+        <!-- News Item 3 -->
+        <div class="flex gap-4">
+          <div class="w-1/3">
+            <img src="https://images.tv9telugu.com/wp-content/uploads/2025/05/samantha-8.jpg" alt="Travel News" class="w-full h-[120px] object-cover rounded"/>
+          </div>
+          <div class="w-2/3">
+            <h3 class="text-lg font-medium mb-2">సమంతతో ఉన్న ఈ అమ్మాయిని గుర్తు పట్టారా? ఒకప్పుడు టిక్ టాక్ స్టార్..</h3>
+            <span class="text-[#FF0000] text-sm">తాజా వార్తలు</span>
+          </div>
+        </div>
+
+        <!-- News Item 4 -->
+        <div class="flex gap-4">
+          <div class="w-1/3">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMWnRq9lLaqKujUWKzAXW-pXHuyG6KEJ_F5g&s" alt="Movie News" class="w-full h-[120px] object-cover rounded"/>
+          </div>
+          <div class="w-2/3">
+            <h3 class="text-lg font-medium mb-2">ప్రభాస్ 'సలార్' సీక్వెల్ అప్‌డేట్.. ఎప్పుడంటే?</h3>
+            <span class="text-[#FF0000] text-sm">సినిమా</span>
+          </div>
+        </div>
+
+        <!-- News Item 5 -->
+        <div class="flex gap-4">
+          <div class="w-1/3">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRMoTLhIRp1Uw_5fAgQyeV4EYkfhgehm3zS9Q&s" alt="Sports News" class="w-full h-[120px] object-cover rounded"/>
+          </div>
+          <div class="w-2/3">
+            <h3 class="text-lg font-medium mb-2">ఐపీఎల్ 2025: ప్లేఆఫ్స్ రేసులో ఏ జట్టు ఎక్కడ ఉంది?</h3>
+            <span class="text-[#FF0000] text-sm">క్రీడలు</span>
+          </div>
+        </div>
+
+        <!-- News Item 6 -->
+        <div class="flex gap-4">
+          <div class="w-1/3">
+            <img src="https://images.tv9telugu.com/wp-content/uploads/2025/05/weather.jpg" alt="Weather News" class="w-full h-[120px] object-cover rounded"/>
+          </div>
+          <div class="w-2/3">
+            <h3 class="text-lg font-medium mb-2">తెలుగు రాష్ట్రాల్లో వేసవి తీవ్రత.. ఎండ దెబ్బకు ప్రజలు హైరాన్!</h3>
+            <span class="text-[#FF0000] text-sm">తాజా వార్తలు</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trending News Items -->
+      <div id="trending" class="space-y-4 hidden">
+        <!-- Trending Item 1 -->
+        <div class="flex gap-4">
+          <div class="w-1/3">
+            <img src="https://images.tv9telugu.com/wp-content/uploads/2025/05/cheerleader.jpg" alt="Trending News" class="w-full h-[120px] object-cover rounded"/>
+          </div>
+          <div class="w-2/3">
+            <h3 class="text-lg font-medium mb-2"> నిన్న పంజాబ్ లో ఏంజరిగింది? బయటపడ్డ చీర్‌లోడర్ రికార్డెడ్ వైరల్ వీడియో!</h3>
+            <span class="text-[#FF0000] text-sm">క్రీడలు</span>
+          </div>
+        </div>
+        
+        <!-- Trending Item 2 -->
+        <div class="flex gap-4">
+          <div class="w-1/3">
+            <img src="https://images.tv9telugu.com/wp-content/uploads/2025/05/pawan-kalyan-mahesh-babu.jpg" alt="Trending Entertainment" class="w-full h-[120px] object-cover rounded"/>
+          </div>
+          <div class="w-2/3">
+            <h3 class="text-lg font-medium mb-2">పవన్‌కు ప్రియురాలిగా.. మహేష్‌కు తల్లిగా నటించిన హీరోయిన్ ఎవరో తెలుసా? ఇప్పుడు టీచర్‌గా..</h3>
+            <span class="text-[#FF0000] text-sm">వినోదం</span>
+          </div>
+        </div>
+        
+        <!-- Trending Item 3 -->
+        <div class="flex gap-4">
+          <div class="w-1/3">
+            <img src="https://images.tv9telugu.com/wp-content/uploads/2025/05/cm-chandrababu-1.jpg" alt="Trending Politics" class="w-full h-[120px] object-cover rounded"/>
+          </div>
+          <div class="w-2/3">
+            <h3 class="text-lg font-medium mb-2">దేశ రక్షణలో ప్రాణాలు కోల్పోయిన మురళీ నాయక్‌కు ఏపీ సీఎం చంద్రబాబు నివాళి!</h3>
+            <span class="text-[#FF0000] text-sm">రాజకీయం</span>
+          </div>
+        </div>
+
+        <!-- Trending Item 4 -->
+        <div class="flex gap-4">
+          <div class="w-1/3">
+            <img src="https://images.tv9telugu.com/wp-content/uploads/2025/05/ram-charan.jpg" alt="Movie News" class="w-full h-[120px] object-cover rounded"/>
+          </div>
+          <div class="w-2/3">
+            <h3 class="text-lg font-medium mb-2">రామ్ చరణ్ - శంకర్ సినిమా నుంచి అప్‌డేట్.. ఫస్ట్ లుక్ ఎప్పుడంటే?</h3>
+            <span class="text-[#FF0000] text-sm">వినోదం</span>
+          </div>
+        </div>
+
+        <!-- Trending Item 5 -->
+        <div class="flex gap-4">
+          <div class="w-1/3">
+            <img src="https://images.tv9telugu.com/wp-content/uploads/2025/05/election.jpg" alt="Politics News" class="w-full h-[120px] object-cover rounded"/>
+          </div>
+          <div class="w-2/3">
+            <h3 class="text-lg font-medium mb-2">ఎన్నికల సర్వే: తెలంగాణలో ఏ పార్టీకి ఎన్ని సీట్లు?</h3>
+            <span class="text-[#FF0000] text-sm">రాజకీయం</span>
+          </div>
+        </div>
+
+        <!-- Trending Item 6 -->
+        <div class="flex gap-4">
+          <div class="w-1/3">
+            <img src="https://images.tv9telugu.com/wp-content/uploads/2025/05/tech.jpg" alt="Tech News" class="w-full h-[120px] object-cover rounded"/>
+          </div>
+          <div class="w-2/3">
+            <h3 class="text-lg font-medium mb-2">ఐఫోన్ 16 సిరీస్‌పై లీక్స్.. ఎలా ఉండబోతోందంటే?</h3>
+            <span class="text-[#FF0000] text-sm">టెక్నాలజీ</span>
+          </div>
+        </div>
+      </div>
+    </div>
+   </section>
+   <!-- Right column: Ads and other news -->
+   <section class="w-full lg:w-1/4 flex flex-col space-y-5 order-3">
+    <!-- YouTube Video -->
+    <div class="bg-white p-2">
+      <div class="relative" style="padding-bottom: 56.25%;">
+        <iframe 
+          class="absolute top-0 left-0 w-full h-full"
+          src="https://www.youtube.com/embed/ftS2VcJtcus?autoplay=1&mute=1"
+          title="YouTube video"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+      </div>
+    </div>
+    <!-- Top ad -->
+    <div class="bg-white p-2">
+     <img alt="Advertisement with man showing two fingers" class="w-full object-cover" height="160" src="https://storage.googleapis.com/a1aa/image/0eeba4c1-feaf-4fcd-3718-8ac3ddb01c25.jpg" width="250"/>
+    </div>
+    <!-- News box with heading and list -->
+    <div class="bg-white p-4 text-[18px] political-news">
+     <div class="mb-3">
+      <h3 class="font-normal text-[24px] text-[#FF0000] select-none">
+       రాజకీయ వార్తలు
+      </h3>
+     </div>
+     <ul class="space-y-4">
+      <li class="news-item">
+       <div class="news-content">
+        <a class="font-normal hover:text-[#FF0000] block mb-2" href="#">
+          పాక్ దొంగ దొంగ... యుద్ధం ముస్లింలకి
+        </a>
+        <!-- <span class="timestamp block">10 hours ago</span> -->
+       </div>
+      </li>
+      <li class="news-item">
+       <div class="news-content">
+        <a class="font-normal hover:text-[#FF0000] block mb-2" href="#">
+          శేఖ్ చరిత్రలో భారత... న్యాయస్థానం తీర్పు పాక్ దొంగకి
+        </a>
+        <!-- <span class="timestamp block">13 hours ago</span> -->
+       </div>
+      </li>
+      <li class="news-item">
+       <div class="news-content">
+        <a class="font-normal hover:text-[#FF0000] block mb-2" href="#">
+          శ్రీ కృష్ణుడి ఆత్మకు శాంతి, నెహ్రూ బాగ్ ఫ్లై.. !
+        </a>
+        <!-- <span class="timestamp block">12 hours ago</span> -->
+       </div>
+      </li>
+      <li class="news-item">
+       <div class="news-content">
+        <a class="font-normal hover:text-[#FF0000] block mb-2" href="#">
+          ఎమ్ ఎల్ఎస్ శిక్షణ.. ఇదే ఎంట్రీ
+        </a>
+        <!-- <span class="timestamp block">12 hours ago</span> -->
+       </div>
+      </li>
+      <li class="news-item">
+       <div class="news-content">
+        <a class="font-normal hover:text-[#FF0000] block mb-2" href="#">
+          అర్బన్, ముస్లింలకు నెహ్రూ సమాధానాలు
+        </a>
+        <!-- <span class="timestamp block">17 hours ago</span> -->
+       </div>
+      </li>
+      <li class="news-item">
+       <div class="news-content">
+        <a class="font-normal hover:text-[#FF0000] block mb-2" href="#">
+          ఇండియన్లకు జాతీయతలేని జాతి..!
+        </a>
+        <!-- <span class="timestamp block">20 hours ago</span> -->
+       </div>
+      </li>
+      <li class="news-item">
+        <div class="news-content">
+         <a class="font-normal hover:text-[#FF0000] block mb-2" href="#">
+          ప్రభాస్ 'ఫౌజి'లో ప్రముఖ నిర్మాత కూతురు..!
+         </a>
+        </div>
+       </li>
+       <li class="news-item">
+        <div class="news-content">
+         <a class="font-normal hover:text-[#FF0000] block mb-2" href="#">
+          'మహాభారతం'ఫై వెరీ సీరియస్.. తన పాత్రేంటో చెప్పిన అమీర్ ఖాన్
+         </a>
+        </div>
+       </li>
+       <li class="news-item">
+        <div class="news-content">
+         <a class="font-normal hover:text-[#FF0000] block mb-2" href="#">
+          సేఫ్ హౌస్ లోకి పారిపోయిన పాక్ ప్రధాని
+         </a>
+        </div>
+       </li>
+       <li class="news-item">
+        <div class="news-content">
+         <a class="font-normal hover:text-[#FF0000] block mb-2" href="#">
+          శభష్ లోకేష్ – విదేశీయులతోనూ కొబ్బరికాయ కొట్టించారు
+         </a>
+        </div>
+       </li>
+       <li class="news-item">
+        <div class="news-content">
+         <a class="font-normal hover:text-[#FF0000] block mb-2" href="#">
+          కేంద్రంలో మళ్లీ బీజేపీ ప్రభుత్వం.. ఎన్డీయే కూటమికి 400 సీట్లు వస్తాయా? తాజా సర్వే చెప్పేదేంటి?
+         </a>
+        </div>
+       </li>
+       <li class="news-item">
+        <div class="news-content">
+         <a class="font-normal hover:text-[#FF0000] block mb-2" href="#">
+          ఏపీలో వైసీపీ vs టీడీపీ-జనసేన.. ఎవరికి ఎన్ని సీట్లు? ఎగ్జిట్ పోల్స్ ఏం చెబుతున్నాయి?
+         </a>
+        </div>
+       </li>
+     </ul>
+     <a href="#" class="read-more-btn">మరిన్ని వార్తలు</a>
+    </div>
+   </section>
+  </main>
+
+   <!-- Photo Gallery Section -->
+   <div class="max-w-7xl mx-auto px-4 mb-8 mt-6">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-2xl font-normal text-black">ఫోటో గ్యాలరీ</h2>
+      <a href="#" class="text-[#FF0000] hover:text-[#cc0000] flex items-center gap-1 text-sm">
+        View More
+        <i class="fas fa-arrow-right text-xs"></i>
+      </a>
+    </div>
+
+    <!-- Gallery Container with Carousel -->
+    <div class="relative group">
+      <div class="overflow-hidden" id="galleryContainer">
+        <div class="flex gap-4 transition-transform duration-500 ease-in-out" id="galleryTrack">
+          <!-- Gallery Item 1 -->
+          <div class="relative group flex-none w-[calc((100%-3rem)/4)]">
+            <div class="relative">
+              <img 
+                src="https://storage.googleapis.com/a1aa/image/3e1743c3-ce45-4cd5-8d34-48c010b0fe5c.jpg" 
+                alt="IPL 2025 వాయిదాతో టీమిండియా ఆటగాళ్లకు బిగ్ షాక్..?" 
+                class="w-full aspect-[4/3] object-cover rounded-lg"
+              />
+              <div class="absolute bottom-3 left-3 flex items-center gap-1 bg-[#FF0000]/60 text-white px-2 py-1 rounded-md">
+                <i class="fas fa-images text-sm"></i>
+                <span class="text-sm">3</span>
+              </div>
+            </div>
+            <h3 class="mt-2 text-base font-normal line-clamp-2 hover:text-[#FF0000] transition-colors duration-300">
+              IPL 2025 వాయిదాతో టీమిండియా ఆటగాళ్లకు బిగ్ షాక్..?
+            </h3>
+          </div>
+
+          <!-- Gallery Item 2 -->
+          <div class="relative group flex-none w-[calc((100%-3rem)/4)]">
+            <div class="relative">
+              <img 
+                src="https://storage.googleapis.com/a1aa/image/0f08a40f-f084-40f2-af31-8f364fc4e85d.jpg" 
+                alt="లోకేష్ కనగరాజ్ యువన్ మీరు !!" 
+                class="w-full aspect-[4/3] object-cover rounded-lg"
+              />
+              <div class="absolute bottom-3 left-3 flex items-center gap-1 bg-[#FF0000]/60 text-white px-2 py-1 rounded-md">
+                <i class="fas fa-images text-sm"></i>
+                <span class="text-sm">5</span>
+              </div>
+            </div>
+            <h3 class="mt-2 text-base font-normal line-clamp-2 hover:text-[#FF0000] transition-colors duration-300">
+              లోకేష్ కనగరాజ్ యువన్ మీరు !!
+            </h3>
+          </div>
+
+          <!-- Gallery Item 3 -->
+          <div class="relative group flex-none w-[calc((100%-3rem)/4)]">
+            <div class="relative">
+              <img 
+                src="https://storage.googleapis.com/a1aa/image/e56e33dd-1178-43f7-8f79-a5f89b77cb02.jpg" 
+                alt="పవర్ స్టార్ కోసం ఆ హీరో తగ్గుతారా ?? లేదా పోటీ పడతారా ??" 
+                class="w-full aspect-[4/3] object-cover rounded-lg"
+              />
+              <div class="absolute bottom-3 left-3 flex items-center gap-1 bg-[#FF0000]/60 text-white px-2 py-1 rounded-md">
+                <i class="fas fa-images text-sm"></i>
+                <span class="text-sm">2</span>
+              </div>
+            </div>
+            <h3 class="mt-2 text-base font-normal line-clamp-2 hover:text-[#FF0000] transition-colors duration-300">
+              పవర్ స్టార్ కోసం ఆ హీరో తగ్గుతారా ?? లేదా పోటీ పడతారా ??
+            </h3>
+          </div>
+
+          <!-- Gallery Item 4 -->
+          <div class="relative group flex-none w-[calc((100%-3rem)/4)]">
+            <div class="relative">
+              <img 
+                src="https://storage.googleapis.com/a1aa/image/eee44903-9a12-436f-3a1a-00b519729cb9.jpg" 
+                alt="హీరోయిన్ కాకటి అయ్యుంటేదే ఇప్పుడు" 
+                class="w-full aspect-[4/3] object-cover rounded-lg"
+              />
+              <div class="absolute bottom-3 left-3 flex items-center gap-1 bg-[#FF0000]/60 text-white px-2 py-1 rounded-md">
+                <i class="fas fa-images text-sm"></i>
+                <span class="text-sm">8</span>
+              </div>
+            </div>
+            <h3 class="mt-2 text-base font-normal line-clamp-2 hover:text-[#FF0000] transition-colors duration-300">
+              హీరోయిన్ కాకటి అయ్యుంటేదే ఇప్పుడు
+            </h3>
+          </div>
+
+          <!-- Gallery Item 5 -->
+          <div class="relative group flex-none w-[calc((100%-3rem)/4)]">
+            <div class="relative">
+              <img 
+                src="https://images.tv9telugu.com/wp-content/uploads/2025/05/ram-charan.jpg" 
+                alt="రామ్ చరణ్ కొత్త సినిమా అప్డేట్" 
+                class="w-full aspect-[4/3] object-cover rounded-lg"
+              />
+              <div class="absolute bottom-3 left-3 flex items-center gap-1 bg-[#FF0000]/60 text-white px-2 py-1 rounded-md">
+                <i class="fas fa-images text-sm"></i>
+                <span class="text-sm">10</span>
+              </div>
+            </div>
+            <h3 class="mt-2 text-base font-normal line-clamp-2 hover:text-[#FF0000] transition-colors duration-300">
+              రామ్ చరణ్ కొత్త సినిమా అప్డేట్
+            </h3>
+          </div>
+
+          <!-- Gallery Item 6 -->
+          <div class="relative group flex-none w-[calc((100%-3rem)/4)]">
+            <div class="relative">
+              <img 
+                src="https://images.tv9telugu.com/wp-content/uploads/2025/05/prabhas-salaar.jpg" 
+                alt="ప్రభాస్ 'సలార్' సీక్వెల్ అప్‌డేట్" 
+                class="w-full aspect-[4/3] object-cover rounded-lg"
+              />
+              <div class="absolute bottom-3 left-3 flex items-center gap-1 bg-[#FF0000]/60 text-white px-2 py-1 rounded-md">
+                <i class="fas fa-images text-sm"></i>
+                <span class="text-sm">12</span>
+              </div>
+            </div>
+            <h3 class="mt-2 text-base font-normal line-clamp-2 hover:text-[#FF0000] transition-colors duration-300">
+              ప్రభాస్ 'సలార్' సీక్వెల్ అప్‌డేట్
+            </h3>
+          </div>
+
+          <!-- Gallery Item 7 -->
+          <div class="relative group flex-none w-[calc((100%-3rem)/4)]">
+            <div class="relative">
+              <img 
+                src="https://images.tv9telugu.com/wp-content/uploads/2025/05/samantha-8.jpg" 
+                alt="సమంత కొత్త సినిమా అనౌన్స్‌మెంట్" 
+                class="w-full aspect-[4/3] object-cover rounded-lg"
+              />
+              <div class="absolute bottom-3 left-3 flex items-center gap-1 bg-[#FF0000]/60 text-white px-2 py-1 rounded-md">
+                <i class="fas fa-images text-sm"></i>
+                <span class="text-sm">5</span>
+              </div>
+            </div>
+            <h3 class="mt-2 text-base font-normal line-clamp-2 hover:text-[#FF0000] transition-colors duration-300">
+              సమంత కొత్త సినిమా అనౌన్స్‌మెంట్
+            </h3>
+          </div>
+
+          <!-- Gallery Item 8 -->
+          <div class="relative group flex-none w-[calc((100%-3rem)/4)]">
+            <div class="relative">
+              <img 
+                src="https://images.tv9telugu.com/wp-content/uploads/2025/05/ntr.jpg" 
+                alt="ఎన్టీఆర్ 'దేవర' నుంచి అప్‌డేట్" 
+                class="w-full aspect-[4/3] object-cover rounded-lg"
+              />
+              <div class="absolute bottom-3 left-3 flex items-center gap-1 bg-[#FF0000]/60 text-white px-2 py-1 rounded-md">
+                <i class="fas fa-images text-sm"></i>
+                <span class="text-sm">5</span>
+              </div>
+            </div>
+            <h3 class="mt-2 text-base font-normal line-clamp-2 hover:text-[#FF0000] transition-colors duration-300">
+              ఎన్టీఆర్ 'దేవర' నుంచి అప్‌డేట్
+            </h3>
+          </div>
+
+          <!-- Gallery Item 9 -->
+          <div class="relative group flex-none w-[calc((100%-3rem)/4)]">
+            <div class="relative">
+              <img 
+                src="https://images.tv9telugu.com/wp-content/uploads/2025/05/mahesh-babu.jpg" 
+                alt="మహేష్ బాబు కొత్త సినిమా షూటింగ్ అప్‌డేట్" 
+                class="w-full aspect-[4/3] object-cover rounded-lg"
+              />
+              <div class="absolute bottom-3 left-3 flex items-center gap-1 bg-[#FF0000]/60 text-white px-2 py-1 rounded-md">
+                <i class="fas fa-images text-sm"></i>
+                <span class="text-sm">5</span>
+              </div>
+            </div>
+            <h3 class="mt-2 text-base font-normal line-clamp-2 hover:text-[#FF0000] transition-colors duration-300">
+              మహేష్ బాబు కొత్త సినిమా షూటింగ్ అప్‌డేట్
+            </h3>
+          </div>
+
+          <!-- Gallery Item 10 -->
+          <div class="relative group flex-none w-[calc((100%-3rem)/4)]">
+            <div class="relative">
+              <img 
+                src="https://images.tv9telugu.com/wp-content/uploads/2025/05/allu-arjun.jpg" 
+                alt="పుష్ప 2 నుంచి అల్లు అర్జున్ న్యూ లుక్" 
+                class="w-full aspect-[4/3] object-cover rounded-lg"
+              />
+              <div class="absolute bottom-3 left-3 flex items-center gap-1 bg-[#FF0000]/60 text-white px-2 py-1 rounded-md">
+                <i class="fas fa-images text-sm"></i>
+                <span class="text-sm">5</span>
+              </div>
+            </div>
+            <h3 class="mt-2 text-base font-normal line-clamp-2 hover:text-[#FF0000] transition-colors duration-300">
+              పుష్ప 2 నుంచి అల్లు అర్జున్ న్యూ లుక్
+            </h3>
+          </div>
+
+          <!-- Gallery Item 11 -->
+          <div class="relative group flex-none w-[calc((100%-3rem)/4)]">
+            <div class="relative">
+              <img 
+                src="https://images.tv9telugu.com/wp-content/uploads/2025/05/vijay-deverakonda.jpg" 
+                alt="విజయ్ దేవరకొండ కొత్త సినిమా ప్రకటన" 
+                class="w-full aspect-[4/3] object-cover rounded-lg"
+              />
+              <div class="absolute bottom-3 left-3 flex items-center gap-1 bg-[#FF0000]/60 text-white px-2 py-1 rounded-md">
+                <i class="fas fa-images text-sm"></i>
+                <span class="text-sm">5</span>
+              </div>
+            </div>
+            <h3 class="mt-2 text-base font-normal line-clamp-2 hover:text-[#FF0000] transition-colors duration-300">
+              విజయ్ దేవరకొండ కొత్త సినిమా ప్రకటన
+            </h3>
+          </div>
+
+          <!-- Gallery Item 12 -->
+          <div class="relative group flex-none w-[calc((100%-3rem)/4)]">
+            <div class="relative">
+              <img 
+                src="https://images.tv9telugu.com/wp-content/uploads/2025/05/pawan-kalyan.jpg" 
+                alt="పవన్ కళ్యాణ్ రాజకీయ అప్‌డేట్" 
+                class="w-full aspect-[4/3] object-cover rounded-lg"
+              />
+              <div class="absolute bottom-3 left-3 flex items-center gap-1 bg-[#FF0000]/60 text-white px-2 py-1 rounded-md">
+                <i class="fas fa-images text-sm"></i>
+                <span class="text-sm">5</span>
+              </div>
+            </div>
+            <h3 class="mt-2 text-base font-normal line-clamp-2 hover:text-[#FF0000] transition-colors duration-300">
+              పవన్ కళ్యాణ్ రాజకీయ అప్‌డేట్
+            </h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Buttons -->
+      <button class="absolute left-0 top-1/3 -translate-y-1/2 w-10 h-10 bg-black/50 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-black/70 z-10" id="prevBtn">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button class="absolute right-0 top-1/3 -translate-y-1/2 w-10 h-10 bg-black/50 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-black/70 z-10" id="nextBtn">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+
+      <!-- Progress Dots -->
+      <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+        <div class="w-2 h-2 rounded-full bg-[#FF0000] transition-all duration-300" id="dot1"></div>
+        <div class="w-2 h-2 rounded-full bg-gray-300 transition-all duration-300" id="dot2"></div>
+        <div class="w-2 h-2 rounded-full bg-gray-300 transition-all duration-300" id="dot3"></div>
+      </div>
+
+      <style>
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+      </style>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const container = document.getElementById('galleryContainer');
+      const track = document.getElementById('galleryTrack');
+      const items = track.children;
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const dot1 = document.getElementById('dot1');
+      const dot2 = document.getElementById('dot2');
+      const dot3 = document.getElementById('dot3');
+
+      let currentIndex = 0;
+      const itemsPerView = 4;
+      const totalGroups = Math.ceil(items.length / itemsPerView);
+      let isTransitioning = false;
+
+      function updateDots(index) {
+        [dot1, dot2, dot3].forEach((dot, i) => {
+          dot.classList.toggle('bg-[#FF0000]', i === index);
+          dot.classList.toggle('bg-gray-300', i !== index);
+        });
+      }
+
+      function scrollToIndex(index, smooth = true) {
+        if (isTransitioning) return;
+        isTransitioning = true;
+
+        if (index < 0) index = totalGroups - 1;
+        if (index >= totalGroups) index = 0;
+        
+        currentIndex = index;
+        const itemWidth = items[0].offsetWidth;
+        const gapWidth = 16; // This is the gap-4 class value in pixels
+        const offset = -(itemWidth + gapWidth) * (itemsPerView * index);
+        
+        track.style.transition = smooth ? 'transform 500ms ease-in-out' : 'none';
+        track.style.transform = `translateX(${offset}px)`;
+        
+        updateDots(index);
+
+        setTimeout(() => {
+          isTransitioning = false;
+        }, smooth ? 500 : 0);
+      }
+
+      // Event Listeners
+      prevBtn.addEventListener('click', () => {
+        scrollToIndex(currentIndex - 1);
+      });
+
+      nextBtn.addEventListener('click', () => {
+        scrollToIndex(currentIndex + 1);
+      });
+
+      // Dot click handlers
+      [dot1, dot2, dot3].forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+          scrollToIndex(index);
+        });
+      });
+
+      // Handle window resize
+      let resizeTimeout;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          // Reset position without animation
+          scrollToIndex(currentIndex, false);
+        }, 100);
+      });
+
+      // Initialize gallery
+      track.style.display = 'flex';
+      track.style.gap = '1rem';
+      scrollToIndex(0, false);
+    });
+  </script>
+  <!-- Footer Section -->
+  <footer class="bg-[#1a1a1a] mt-8 py-8">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+        <!-- Left Side - Logo -->
+        <div class="mb-4 md:mb-0">
+          <img src="assets/images/footer-logo.png" alt="Tag Telugu Logo" class="h-12">
+        </div>
+
+        <!-- Right Side - Social Media -->
+        <div class="flex items-center gap-6">
+          <div class="text-white">FOLLOW US ON</div>
+          <div class="flex gap-4">
+            <a href="#" class="text-white hover:text-[#FF0000] transition-colors duration-300">
+              <i class="fab fa-facebook-f text-xl"></i>
+            </a>
+            <a href="#" class="text-white hover:text-[#FF0000] transition-colors duration-300">
+              <i class="fab fa-twitter text-xl"></i>
+            </a>
+            <a href="#" class="text-white hover:text-[#FF0000] transition-colors duration-300">
+              <i class="fab fa-instagram text-xl"></i>
+            </a>
+            <a href="#" class="text-white hover:text-[#FF0000] transition-colors duration-300">
+              <i class="fab fa-youtube text-xl"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Links -->
+      <div class="flex flex-wrap justify-center gap-4 text-sm text-gray-300 mb-4">
+        <a href="#" class="hover:text-[#FF0000] transition-colors duration-300">Contact Us</a>
+        <span class="text-gray-600">|</span>
+        <a href="#" class="hover:text-[#FF0000] transition-colors duration-300">About Us</a>
+        <span class="text-gray-600">|</span>
+        <a href="#" class="hover:text-[#FF0000] transition-colors duration-300">Advertise With Us</a>
+        <span class="text-gray-600">|</span>
+        <a href="#" class="hover:text-[#FF0000] transition-colors duration-300">Complaint Redressal</a>
+        <span class="text-gray-600">|</span>
+        <a href="#" class="hover:text-[#FF0000] transition-colors duration-300">Privacy & Cookies Notice</a>
+        <span class="text-gray-600">|</span>
+        <a href="#" class="hover:text-[#FF0000] transition-colors duration-300">Terms & Conditions</a>
+      </div>
+
+      <!-- Copyright -->
+      <div class="text-center text-sm text-gray-400">
+        Copyright © 2025 Tag Telugu. All Rights Reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to Top Button -->
+  <button id="backToTop" class="fixed bottom-8 right-8 bg-[#FF0000] text-white w-12 h-12 rounded-full shadow-lg opacity-0 invisible transform translate-y-10 transition-all duration-300 ease-in-out flex items-center justify-center hover:bg-[#cc0000] focus:outline-none group z-50">
+    <i class="fas fa-arrow-up text-lg group-hover:animate-bounce"></i>
+  </button>
+
+  <script src="assets/js/main.js"></script>
+  <script>
+    function switchTab(tabName) {
+      // Hide all content
+      document.getElementById('topNews').classList.add('hidden');
+      document.getElementById('trending').classList.add('hidden');
+      
+      // Show selected content
+      document.getElementById(tabName).classList.remove('hidden');
+      
+      // Update tab styles
+      if (tabName === 'topNews') {
+        document.getElementById('topNewsTab').className = 'relative px-8 py-3 text-[15px] font-medium text-[#FF0000] after:content-[\'\'] after:absolute after:bottom-[-1px] after:left-0 after:w-full after:h-[2px] after:bg-[#FF0000]';
+        document.getElementById('trendingTab').className = 'relative px-8 py-3 text-[15px] font-medium text-gray-500 hover:text-[#FF0000] transition-colors duration-200';
+      } else {
+        document.getElementById('trendingTab').className = 'relative px-8 py-3 text-[15px] font-medium text-[#FF0000] after:content-[\'\'] after:absolute after:bottom-[-1px] after:left-0 after:w-full after:h-[2px] after:bg-[#FF0000]';
+        document.getElementById('topNewsTab').className = 'relative px-8 py-3 text-[15px] font-medium text-gray-500 hover:text-[#FF0000] transition-colors duration-200';
+      }
+    }
+
+    // Advanced Back to Top functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const backToTopButton = document.getElementById('backToTop');
+      let isThrottled = false;
+      let lastScrollY = 0;
+      const scrollThreshold = 400;
+
+      // Throttle function to improve scroll performance
+      function throttle(func, limit) {
+        if (isThrottled) return;
+        isThrottled = true;
+        setTimeout(() => {
+          func();
+          isThrottled = false;
+        }, limit);
+      }
+
+      // Handle scroll event with throttling
+      window.addEventListener('scroll', () => {
+        throttle(() => {
+          const currentScrollY = window.scrollY;
+          
+          // Show/hide button with threshold
+          if (currentScrollY > scrollThreshold) {
+            backToTopButton.classList.remove('opacity-0', 'invisible', 'translate-y-10');
+            backToTopButton.classList.add('opacity-100', 'translate-y-0');
+            
+            // Add subtle animation based on scroll direction
+            if (currentScrollY > lastScrollY) {
+              backToTopButton.style.transform = 'translateY(0) rotate(360deg)';
+            } else {
+              backToTopButton.style.transform = 'translateY(0) rotate(0deg)';
+            }
+          } else {
+            backToTopButton.classList.add('opacity-0', 'invisible', 'translate-y-10');
+            backToTopButton.classList.remove('opacity-100', 'translate-y-0');
+          }
+          
+          lastScrollY = currentScrollY;
+        }, 100);
+      });
+
+      // Smooth scroll with easing
+      backToTopButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // Add click animation
+        backToTopButton.classList.add('scale-90');
+        setTimeout(() => backToTopButton.classList.remove('scale-90'), 200);
+
+        const startPosition = window.pageYOffset;
+        const duration = 800;
+        const startTime = performance.now();
+
+        // Easing function for smooth animation
+        function easeOutCubic(t) {
+          return 1 - Math.pow(1 - t, 3);
+        }
+
+        // Animate scroll
+        function scrollAnimation(currentTime) {
+          const timeElapsed = currentTime - startTime;
+          const progress = Math.min(timeElapsed / duration, 1);
+          
+          window.scrollTo(0, startPosition * (1 - easeOutCubic(progress)));
+
+          if (progress < 1) {
+            requestAnimationFrame(scrollAnimation);
+          }
+        }
+
+        requestAnimationFrame(scrollAnimation);
+      });
+
+      // Add hover effect
+      backToTopButton.addEventListener('mouseenter', () => {
+        backToTopButton.querySelector('i').style.animation = 'bounce 1s infinite';
+      });
+
+      backToTopButton.addEventListener('mouseleave', () => {
+        backToTopButton.querySelector('i').style.animation = '';
+      });
+    });
+
+    // Add keyframe animation for bounce effect
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Gallery Carousel functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const track = document.getElementById('galleryTrack');
+      const slides = track.children;
+      const nextButton = document.querySelector('.gallery-next');
+      const prevButton = document.querySelector('.gallery-prev');
+      const dots = document.querySelectorAll('.gallery-dot');
+      let currentIndex = 0;
+      let isTransitioning = false;
+
+      // Auto slide interval
+      const autoSlideInterval = 5000;
+      let autoSlideTimer;
+
+      function updateDots() {
+        dots.forEach((dot, idx) => {
+          dot.classList.toggle('bg-[#FF0000]', idx === currentIndex);
+          dot.classList.toggle('bg-gray-300', idx !== currentIndex);
+        });
+      }
+
+      function slide(direction) {
+        if (isTransitioning) return;
+        isTransitioning = true;
+
+        const slideWidth = slides[0].offsetWidth;
+        const newIndex = direction === 'next' 
+          ? (currentIndex + 1) % slides.length 
+          : (currentIndex - 1 + slides.length) % slides.length;
+
+        track.style.transform = `translateX(-${slideWidth * newIndex}px)`;
+        currentIndex = newIndex;
+        updateDots();
+
+        // Reset transition lock after animation
+        setTimeout(() => {
+          isTransitioning = false;
+        }, 500);
+      }
+
+      function startAutoSlide() {
+        stopAutoSlide();
+        autoSlideTimer = setInterval(() => slide('next'), autoSlideInterval);
+      }
+
+      function stopAutoSlide() {
+        if (autoSlideTimer) clearInterval(autoSlideTimer);
+      }
+
+      // Event Listeners
+      nextButton.addEventListener('click', () => {
+        slide('next');
+        stopAutoSlide();
+        startAutoSlide();
+      });
+
+      prevButton.addEventListener('click', () => {
+        slide('prev');
+        stopAutoSlide();
+        startAutoSlide();
+      });
+
+      dots.forEach((dot, idx) => {
+        dot.addEventListener('click', () => {
+          if (isTransitioning || currentIndex === idx) return;
+          isTransitioning = true;
+
+          const slideWidth = slides[0].offsetWidth;
+          track.style.transform = `translateX(-${slideWidth * idx}px)`;
+          currentIndex = idx;
+          updateDots();
+
+          setTimeout(() => {
+            isTransitioning = false;
+          }, 500);
+
+          stopAutoSlide();
+          startAutoSlide();
+        });
+      });
+
+      // Start auto sliding
+      startAutoSlide();
+
+      // Pause auto slide on hover
+      track.parentElement.addEventListener('mouseenter', stopAutoSlide);
+      track.parentElement.addEventListener('mouseleave', startAutoSlide);
+
+      // Update dots initially
+      updateDots();
+    });
+  </script>
+ </body>
+</html>

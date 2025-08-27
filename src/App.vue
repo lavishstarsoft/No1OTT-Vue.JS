@@ -16,6 +16,11 @@ import PopupModal from '@/components/PopupModal.vue'
 
 export default {
   name: 'App',
+  data() {
+    return {
+      scrollCheckInterval: null
+    }
+  },
   components: {
     MobileNav,
     ToastNotification,
@@ -27,8 +32,20 @@ export default {
       return !hideOnRoutes.includes(this.$route.path);
     }
   },
+  watch: {
+    // Watch for route changes to ensure scroll is restored
+    '$route'() {
+      // Ensure scroll is enabled when route changes
+      this.$nextTick(() => {
+        this.ensurePageScrollability();
+      });
+    }
+  },
   mounted() {
     console.log('App mounted, checking authentication status');
+    
+    // Ensure page scrolling is enabled on app mount
+    this.ensurePageScrollability();
     
     // Check if user is authenticated
     const isAuthenticated = this.$store.getters.isAuthenticated;
@@ -48,6 +65,18 @@ export default {
       this.checkPendingPayments();
       // Check for user notifications (like account deletion)
       this.checkUserNotifications();
+      
+      // Set up intervals for background checking
+      // Check pending payments every 30 seconds
+      this.paymentCheckInterval = setInterval(() => {
+        this.checkPendingPayments();
+      }, 30000);
+      
+      // Check subscription status every 2 minutes
+      this.subscriptionCheckInterval = setInterval(() => {
+        this.checkSubscriptionStatus();
+      }, 120000);
+      
       // Listen for app resume/focus
       window.addEventListener('focus', this.checkPendingPayments);
       window.addEventListener('focus', this.checkUserNotifications);
@@ -55,11 +84,39 @@ export default {
     } else {
       console.log('User not authenticated, skipping background checks');
     }
+    
+    // Add global event listeners for scroll restoration
+    window.addEventListener('beforeunload', this.ensurePageScrollability);
+    window.addEventListener('pagehide', this.ensurePageScrollability);
+    
+    // Add periodic scroll check (every 5 seconds)
+    this.scrollCheckInterval = setInterval(() => {
+      if (document.body.style.overflow === 'hidden') {
+        console.log('⚠️ Scroll blocked detected, restoring...');
+        this.ensurePageScrollability();
+      }
+    }, 5000);
   },
   beforeUnmount() {
+    // Clear all intervals
+    if (this.paymentCheckInterval) {
+      clearInterval(this.paymentCheckInterval);
+    }
+    if (this.subscriptionCheckInterval) {
+      clearInterval(this.subscriptionCheckInterval);
+    }
+    
+    // Clear event listeners
     window.removeEventListener('focus', this.checkPendingPayments);
     window.removeEventListener('focus', this.checkUserNotifications);
     window.removeEventListener('focus', this.checkAndCleanExpiredOrders);
+    window.removeEventListener('beforeunload', this.ensurePageScrollability);
+    window.removeEventListener('pagehide', this.ensurePageScrollability);
+    
+    // Clear the scroll check interval
+    if (this.scrollCheckInterval) {
+      clearInterval(this.scrollCheckInterval);
+    }
   },
   methods: {
     checkAndShowToast(successKey, messageKey) {
@@ -325,6 +382,48 @@ export default {
     handlePopupAction() {
       // Handle popup action - you can add custom logic here
       console.log('Popup action handled');
+    },
+    
+    // Ensure page scrolling is enabled
+    ensurePageScrollability() {
+      console.log('🔧 Ensuring page scrollability...');
+      
+      // Reset body styles
+      document.body.style.overflow = 'auto';
+      document.body.style.position = 'static';
+      document.body.style.height = 'auto';
+      document.body.style.width = 'auto';
+      document.body.style.transform = 'none';
+      document.body.style.willChange = 'auto';
+      document.body.style.touchAction = 'auto';
+      document.body.style.pointerEvents = 'auto';
+      document.body.style.userSelect = 'auto';
+      document.body.style.webkitUserSelect = 'auto';
+      document.body.style.webkitOverflowScrolling = 'touch';
+      
+      // Reset html styles
+      document.documentElement.style.overflow = 'auto';
+      document.documentElement.style.height = 'auto';
+      document.documentElement.style.position = 'static';
+      document.documentElement.style.touchAction = 'auto';
+      
+      // Remove any video-related classes
+      document.body.classList.remove('vjs-fullscreen', 'video-playing', 'no-scroll', 'force-scrollable');
+      document.documentElement.classList.remove('vjs-fullscreen', 'video-playing', 'no-scroll');
+      
+      // Clear any inline styles that might block scroll
+      document.body.style.cssText = document.body.style.cssText.replace(/overflow:\s*[^;]+;?/g, 'overflow: auto;');
+      document.documentElement.style.cssText = document.documentElement.style.cssText.replace(/overflow:\s*[^;]+;?/g, 'overflow: auto;');
+      
+      // Force a reflow to ensure styles are applied
+      void document.body.offsetHeight;
+      void document.documentElement.offsetHeight;
+      
+      // Test scroll functionality
+      window.scrollTo(0, 1);
+      window.scrollTo(0, 0);
+      
+      console.log('✅ Page scrollability ensured');
     }
   }
 }
@@ -338,9 +437,35 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: #121212;
   color: white;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+html {
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 #app {
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Ensure scrolling works properly */
+.min-h-screen {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Force scrollable class for emergency use */
+.force-scrollable {
+  overflow: auto !important;
+  position: static !important;
+  height: auto !important;
+  width: auto !important;
+  transform: none !important;
+  will-change: auto !important;
+  touch-action: auto !important;
+  pointer-events: auto !important;
 }
 </style>

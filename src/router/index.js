@@ -22,6 +22,7 @@ import WatchList from '@/views/WatchList.vue'
 import PrivacyPolicy from '../views/PrivacyPolicy.vue'
 import TermsOfService from '../views/TermsOfService.vue'
 import CookiePolicy from '../views/CookiePolicy.vue'
+import PaymentVerification from '../views/PaymentVerification.vue'
 
 const routes = [
   {
@@ -175,6 +176,12 @@ const routes = [
     path: '/mini-register',
     name: 'MiniRegister',
     component: MiniRegistration,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/payment/verify',
+    name: 'PaymentVerification',
+    component: PaymentVerification,
     meta: { requiresAuth: true }
   },
   {

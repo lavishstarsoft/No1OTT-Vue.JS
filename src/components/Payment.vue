@@ -18,13 +18,22 @@
       <p>Amount: ₹{{ selectedPlan.price }}</p>
       <button @click="initiatePayment" class="pay-btn">Pay Now</button>
     </div>
+
+    <!-- Payment Status Modal -->
+    <div v-if="showStatusModal" class="status-modal">
+      <div class="modal-content">
+        <h3>Checking Payment Status...</h3>
+        <p>Please wait while we verify your payment.</p>
+        <div class="loader"></div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
 import { useStore } from 'vuex';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
 export default {
@@ -42,26 +51,26 @@ export default {
 
     const selectedPlan = ref(null);
     const showPaymentForm = ref(false);
+    const showStatusModal = ref(false);
+    const statusCheckInterval = ref(null);
 
     // Computed properties
     const user = computed(() => store.state.user);
     const isAuthenticated = computed(() => store.state.isAuthenticated);
 
     onMounted(() => {
-      console.log('Payment Component Mounted:', {
-        user: user.value,
-        isAuthenticated: isAuthenticated.value,
-        route: route.fullPath
-      });
-
+      console.log('Payment Component Mounted');
+      
       if (!isAuthenticated.value || !user.value) {
-        console.log('User not authenticated, redirecting to login');
         router.push({
           path: '/login',
           query: { redirect: route.fullPath }
         });
         return;
       }
+
+      // Check for pending payments
+      checkPendingPayments();
 
       // Check for plan in route query
       const planType = route.query.plan;
@@ -75,6 +84,22 @@ export default {
       }
     });
 
+    const checkPendingPayments = () => {
+      const pendingPayment = localStorage.getItem('pending_payment');
+      if (pendingPayment) {
+        const payment = JSON.parse(pendingPayment);
+        const timeElapsed = new Date().getTime() - payment.timestamp;
+        
+        // Check if payment was initiated in last 10 minutes
+        if (timeElapsed < 600000) {
+          showStatusModal.value = true;
+          startPaymentStatusCheck(payment.order_id);
+        } else {
+          localStorage.removeItem('pending_payment');
+        }
+      }
+    };
+
     const selectPlan = (plan) => {
       console.log('Selected Plan:', plan);
       selectedPlan.value = plan;
@@ -87,10 +112,19 @@ export default {
         
         const orderResponse = await axios.post('/api/payment/create-order/', {
           amount: selectedPlan.value.price,
-          currency: 'INR'
+          plan_id: selectedPlan.value.id,
+          phone: user.value?.phone
         });
 
         console.log('Order created:', orderResponse.data);
+
+        // Save order details for recovery
+        localStorage.setItem('pending_payment', JSON.stringify({
+          order_id: orderResponse.data.order_id,
+          plan_id: selectedPlan.value.id,
+          amount: selectedPlan.value.price,
+          timestamp: new Date().getTime()
+        }));
 
         const options = {
           key: orderResponse.data.key_id,
@@ -107,6 +141,28 @@ export default {
           },
           theme: {
             color: '#3399cc'
+          },
+          modal: {
+            ondismiss: function() {
+              // Start checking payment status when modal is closed
+              startPaymentStatusCheck(orderResponse.data.order_id);
+            }
+          },
+          config: {
+            display: {
+              blocks: {
+                upi: {
+                  preferred: true,
+                  name: "UPI",
+                  instruments: [
+                    { targetApp: "phonepe" },
+                    { targetApp: "googlePay" },
+                    { targetApp: "paytm" },
+                    { targetApp: "upi" }
+                  ]
+                }
+              }
+            }
           }
         };
 
@@ -118,6 +174,45 @@ export default {
       }
     };
 
+    const startPaymentStatusCheck = async (orderId) => {
+      showStatusModal.value = true;
+      let attempts = 0;
+      const maxAttempts = 10; // 5 minutes (30 seconds * 10)
+
+      const checkStatus = async () => {
+        try {
+          const response = await axios.get(`/api/payment/check-status/${orderId}/`);
+          
+          if (response.data.status === 'completed') {
+            // Payment successful
+            showStatusModal.value = false;
+            clearInterval(statusCheckInterval.value);
+            localStorage.removeItem('pending_payment');
+            
+            // Show success message
+            alert('Payment successful! Your subscription is now active.');
+            router.push('/profile');
+            return;
+          }
+          
+          attempts++;
+          if (attempts >= maxAttempts) {
+            showStatusModal.value = false;
+            clearInterval(statusCheckInterval.value);
+            alert('Payment status could not be verified. Please contact support.');
+          }
+        } catch (error) {
+          console.error('Status check failed:', error);
+        }
+      };
+
+      // Check immediately
+      await checkStatus();
+      
+      // Then check every 30 seconds
+      statusCheckInterval.value = setInterval(checkStatus, 30000);
+    };
+
     const handlePaymentSuccess = async (response) => {
       try {
         console.log('Payment successful, verifying:', response);
@@ -125,10 +220,13 @@ export default {
         const verifyResponse = await axios.post('/api/payment/verify-payment/', {
           razorpay_payment_id: response.razorpay_payment_id,
           razorpay_order_id: response.razorpay_order_id,
-          razorpay_signature: response.razorpay_signature
+          razorpay_signature: response.razorpay_signature,
+          phone: user.value?.phone,
+          plan_id: selectedPlan.value.id
         });
 
         if (verifyResponse.data.status === 'success') {
+          localStorage.removeItem('pending_payment');
           alert('Payment successful! Your subscription is now active.');
           router.push('/profile');
         }
@@ -138,10 +236,18 @@ export default {
       }
     };
 
+    // Cleanup on component unmount
+    onUnmounted(() => {
+      if (statusCheckInterval.value) {
+        clearInterval(statusCheckInterval.value);
+      }
+    });
+
     return {
       plans,
       selectedPlan,
       showPaymentForm,
+      showStatusModal,
       selectPlan,
       initiatePayment
     };
@@ -228,4 +334,40 @@ export default {
 .pay-btn:hover, .select-btn:hover {
   background: #2980b9;
 }
-</style> 
+
+/* Status Modal Styles */
+.status-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.loader {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>

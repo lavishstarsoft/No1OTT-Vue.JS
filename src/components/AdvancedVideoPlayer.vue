@@ -21,44 +21,51 @@
         </div>
       </div>
 
-      <div class="custom-controls-overlay" :class="{ 'controls-hidden': !showControls }">
+      <div class="custom-controls-overlay" :class="{ 'controls-hidden': !showControls || isLoading }">
         <!-- Top Controls -->
         <div class="top-controls">
           <div class="top-left">
-            <button @click="handleBackClick" class="control-button back-button">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 12H5"/>
-                <path d="M12 19l-7-7 7-7"/>
+            <h3 class="video-title" v-if="title">{{ title }}</h3>
+          </div>
+          
+          <div class="top-center">
+            <!-- Empty center area -->
+          </div>
+          
+          <div class="top-right">
+            <button @click="handleBackClick" class="top-control-btn close-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
             </button>
-            <h3 class="video-title" v-if="title">{{ title }}</h3>
           </div>
         </div>
 
-        <!-- Center Controls with Mobile Rotation Hint -->
+        <!-- Center Controls -->
         <div class="center-controls">
-          <button @click="skipBackward" class="control-button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <button @click="skipBackward" class="center-control-btn skip-backward">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M11 17l-5-5 5-5"/>
               <path d="M17 17l-5-5 5-5"/>
             </svg>
-            <span class="button-text">10</span>
           </button>
-          <button @click="togglePlay" class="control-button play-button">
-            <svg v-if="!isPlaying" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          
+          <button @click="togglePlay" class="center-control-btn play-pause-btn">
+            <svg v-if="!isPlaying" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="currentColor" stroke="none">
               <polygon points="5 3 19 12 5 21 5 3"/>
             </svg>
-            <svg v-else xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg v-else xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="currentColor" stroke="none">
               <rect x="6" y="4" width="4" height="16"/>
               <rect x="14" y="4" width="4" height="16"/>
             </svg>
           </button>
-          <button @click="skipForward" class="control-button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          
+          <button @click="skipForward" class="center-control-btn skip-forward">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M7 17l5-5-5-5"/>
               <path d="M13 17l5-5-5-5"/>
             </svg>
-            <span class="button-text">10</span>
           </button>
         </div>
 
@@ -83,34 +90,47 @@
               <div class="progress-thumb" :style="{ left: `calc(${playedPercent}% - 8px)` }"></div>
               <input type="range" min="0" :max="duration" :value="currentTime" @input="onProgressChange" @mousedown="isDragging = true" @mouseup="isDragging = false" class="progress-slider">
             </div>
-            <div class="progress-row">
+            <div class="bottom-row">
+              <div class="bottom-left">
               <div class="time-display">
                 {{ formatTime(currentTime) }} / {{ formatTime(duration) }}
               </div>
-              <div class="resolution-container">
-                <span class="resolution-text">{{ selectedQuality }}</span>
-                <button class="settings-icon-btn" @click="$refs.qualitySelector && $refs.qualitySelector.focus()" type="button">
-                  <svg class="settings-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              </div>
+              
+              <div class="bottom-center">
+                <!-- Additional bottom controls can go here -->
+              </div>
+              
+              <div class="bottom-right">
+                <!-- Quality Selector -->
+                <div class="quality-container">
+                  <button class="bottom-control-btn quality-btn" @click="$refs.qualitySelector && $refs.qualitySelector.focus()" type="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="3"/>
                     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.09A1.65 1.65 0 0 0 12 2.6V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
                   </svg>
+                    <span class="control-label">{{ selectedQuality }}</span>
                 </button>
                 <select ref="qualitySelector" v-model="selectedQuality" class="quality-selector" @change="onQualityChange">
                   <option v-for="quality in qualities" :key="quality" :value="quality">{{ quality }}</option>
                 </select>
-                <button v-if="!isMobile" @click="toggleFullscreen" class="control-button fullscreen-btn">
-                  <svg v-if="!isFullscreen" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                </div>
+                
+                <!-- Fullscreen Button -->
+                <button v-if="!isMobile" @click="toggleFullscreen" class="bottom-control-btn fullscreen-btn">
+                  <svg v-if="!isFullscreen" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
                     <path d="M21 8V5a2 2 0 0 0-2-2h-3"/>
                     <path d="M3 16v3a2 2 0 0 0 2 2h3"/>
                     <path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
                   </svg>
-                  <svg v-else xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M8 3v3a2 2 0 0 1-2 2H3"/>
                     <path d="M21 8h-3a2 2 0 0 1-2-2V3"/>
                     <path d="M3 16h3a2 2 0 0 1 2 2v3"/>
                     <path d="M16 21v-3a2 2 0 0 1 2-2h3"/>
                   </svg>
+                  <span class="control-label"></span>
                 </button>
               </div>
             </div>
@@ -162,6 +182,12 @@ export default {
 
   },
   emits: ['close'],
+  // Add navigation guard to detect route leaving
+  beforeRouteLeave(to, from, next) {
+    console.log('🎬 Route leaving detected, cleaning up video player');
+    this.handleNavigationCleanup();
+    next();
+  },
   data() {
     return {
       player: null,
@@ -186,7 +212,7 @@ export default {
       touchStartY: 0,
       touchMoved: false,
       lastTapTime: 0,
-      controlsTimeoutDuration: 3500, // 3.5 seconds
+      controlsTimeoutDuration: 2000, // 2 seconds
       seekThreshold: 50, // Minimum pixels to trigger seek
       volumeThreshold: 30, // Minimum pixels to trigger volume change
       seekRate: 10, // Seconds to seek per swipe,
@@ -199,7 +225,8 @@ export default {
       continuousPlayback: true, // Enable continuous playback mode
       lastPlayTime: 0, // Track last play time for continuity
       pauseRecoveryAttempts: 0, // Track recovery attempts
-      wasPlayingBeforeSeek: false // Track if video was playing before seeking
+      wasPlayingBeforeSeek: false, // Track if video was playing before seeking
+      originalBodyStyles: {} // Store original body styles
     }
   },
   computed: {
@@ -218,6 +245,17 @@ export default {
         src: this.src,
         title: this.title
       })
+      
+      // Store original body styles before video player takes over
+      this.originalBodyStyles = {
+        overflow: document.body.style.overflow,
+        position: document.body.style.position,
+        height: document.body.style.height,
+        touchAction: document.body.style.touchAction,
+        userSelect: document.body.style.userSelect,
+        pointerEvents: document.body.style.pointerEvents
+      };
+      
       this.initializePlayer();
       this.checkMobileDevice();
       this.checkOrientation();
@@ -417,16 +455,22 @@ export default {
             await document.msExitFullscreen();
           }
 
+          // Force update fullscreen state
+          this.isFullscreen = false;
+
           // Unlock orientation
-          if (this.isMobile && window.screen?.orientation?.unlock) {
-            try {
-              await window.screen.orientation.unlock();
-            } catch (e) {
-              console.log('Orientation unlock not supported');
-            }
+          if (this.isMobile) {
+            this.tryUnlockOrientation();
           }
+          
+          // Reset page styles after exiting fullscreen
+          this.resetPageStyles();
+          
         } catch (err) {
           console.error('Exit fullscreen error:', err);
+          // Force reset even if exit fails
+          this.isFullscreen = false;
+          this.resetPageStyles();
         }
       }
     },
@@ -637,6 +681,9 @@ export default {
         if (this.player.muted()) {
           this.player.muted(false);
         }
+        
+        // Start controls hide timer when video is actually playing
+        this.showControlsTemporarily();
       });
 
       this.player.on('error', (error) => {
@@ -689,6 +736,9 @@ export default {
         
         // Hide loading indicator when video starts playing
         this.isLoading = false;
+        
+        // Start controls hide timer when video starts playing
+        this.showControlsTemporarily();
       });
       this.player.on('pause', () => {
         console.log('🎬 Video pause event fired')
@@ -844,7 +894,7 @@ export default {
           if (!this.isDragging && !this.isSeeking) {
             this.showControls = false;
           }
-        }, 4000); // Increased to 4 seconds
+        }, this.controlsTimeoutDuration); // Use the configurable duration (2 seconds)
       }
     },
     
@@ -900,6 +950,9 @@ export default {
       const time = parseFloat(event.target.value);
       this.player.currentTime(time);
       this.isSeeking = true;
+      
+      // Show loading indicator while seeking
+      this.isLoading = true;
     },
 
     onVolumeChange(event) {
@@ -922,6 +975,9 @@ export default {
         return;
       }
       this.player.currentTime(this.currentTime + 10);
+      
+      // Show loading indicator while seeking
+      this.isLoading = true;
     },
 
     skipBackward() {
@@ -929,6 +985,9 @@ export default {
         return;
       }
       this.player.currentTime(this.currentTime - 10);
+      
+      // Show loading indicator while seeking
+      this.isLoading = true;
     },
 
     formatTime(seconds) {
@@ -938,26 +997,64 @@ export default {
     },
 
     beforeDestroy() {
-      // Use comprehensive cleanup
-      this.cleanupVideoPlayer();
+      console.log('🎬 Component destroying, starting cleanup');
+      this.performFullCleanup();
+    },
+
+    // For Vue 3 compatibility
+    beforeUnmount() {
+      console.log('🎬 Component unmounting, starting cleanup');
+      this.performFullCleanup();
+    },
+
+    // Comprehensive cleanup for component destruction
+    async performFullCleanup() {
+      try {
+        // Perform navigation cleanup
+        await this.handleNavigationCleanup();
       
       // Clean up all event listeners
+        this.removeAllEventListeners();
+        
+        console.log('🎬 Component cleanup completed successfully');
+      } catch (error) {
+        console.error('🎬 Error during component cleanup:', error);
+        // Still try to clean up what we can
+        this.removeAllEventListeners();
+        this.resetPageStyles();
+      }
+    },
+
+    // Remove all event listeners
+    removeAllEventListeners() {
+      try {
+        // Remove popstate listener
+        window.removeEventListener('popstate', this.handleBackNavigation);
+        
+        // Remove orientation and fullscreen listeners
       if (this.isMobile && this.enableAutoRotate) {
         window.removeEventListener('orientationchange', this.handleOrientationChange);
+          window.removeEventListener('resize', this.checkOrientation);
         document.removeEventListener('fullscreenchange', this.handleFullscreenChange);
         document.removeEventListener('webkitfullscreenchange', this.handleFullscreenChange);
         document.removeEventListener('mozfullscreenchange', this.handleFullscreenChange);
         document.removeEventListener('MSFullscreenChange', this.handleFullscreenChange);
       }
+        
       // Remove visibility change listener
       document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+        
       // Remove network recovery listener
       window.removeEventListener('online', this.handleNetworkRecovery);
+        
       // Remove page unload listeners
       window.removeEventListener('beforeunload', this.handlePageUnload);
       window.removeEventListener('pagehide', this.handlePageUnload);
       
-      console.log('🎬 Component destroyed, all cleanup completed');
+        console.log('🎬 All event listeners removed');
+      } catch (error) {
+        console.error('🎬 Error removing event listeners:', error);
+      }
     },
 
     onProgressBarClick(event) {
@@ -970,6 +1067,9 @@ export default {
         const progressBarWidth = progressBar.offsetWidth;
         const seekTime = (clickX / progressBarWidth) * this.duration;
         this.player.currentTime(seekTime);
+        
+        // Show loading indicator while seeking
+        this.isLoading = true;
       }
     },
 
@@ -1148,18 +1248,15 @@ export default {
           if (!this.isDragging && !this.isSeeking) {
             this.showControls = false;
           }
-        }, this.controlsTimeoutDuration);
+        }, this.controlsTimeoutDuration); // 2 seconds
       }
     },
 
-    handleBackClick() {
-      // First exit fullscreen if active
-      if (this.isFullscreen) {
-        this.exitFullscreen();
-      }
+    async handleBackClick() {
+      console.log('🎬 Back button clicked');
       
-      // Properly stop and clean up video player
-      this.cleanupVideoPlayer();
+      // Use comprehensive navigation cleanup
+      await this.handleNavigationCleanup();
       
       // Emit close event to parent
       this.$emit('close');
@@ -1167,9 +1264,11 @@ export default {
 
     // Comprehensive video player cleanup
     cleanupVideoPlayer() {
+      console.log('🎬 Starting video player cleanup');
+      
       if (this.player) {
         try {
-          // Stop all playback
+          // Stop all playback immediately
           this.player.pause();
           
           // Mute to stop audio immediately
@@ -1180,6 +1279,24 @@ export default {
           
           // Mobile-specific audio cleanup
           this.handleMobileAudioCleanup();
+          
+          // Remove all event listeners to prevent memory leaks
+          this.player.off('timeupdate');
+          this.player.off('progress');
+          this.player.off('play');
+          this.player.off('pause');
+          this.player.off('ended');
+          this.player.off('loadedmetadata');
+          this.player.off('loadstart');
+          this.player.off('loadeddata');
+          this.player.off('waiting');
+          this.player.off('playing');
+          this.player.off('error');
+          this.player.off('canplay');
+          this.player.off('canplaythrough');
+          this.player.off('stalled');
+          this.player.off('suspend');
+          this.player.off('abort');
           
           // Remove all sources
           this.player.src('');
@@ -1193,9 +1310,11 @@ export default {
           // Clear the player reference
           this.player = null;
           
-          console.log('🎬 Video player cleaned up successfully');
+          console.log('🎬 Video player disposed successfully');
         } catch (error) {
-          console.error('🎬 Error cleaning up video player:', error);
+          console.error('🎬 Error disposing video player:', error);
+          // Force clear player reference even if disposal fails
+          this.player = null;
         }
       }
       
@@ -1210,26 +1329,265 @@ export default {
         this.loadingTimeout = null;
       }
       
-
-      
       // Reset component state
       this.isPlaying = false;
       this.currentTime = 0;
       this.duration = 0;
       this.isLoading = false;
+      this.isFullscreen = false;
+      this.showControls = true;
+      this.isDragging = false;
+      this.isSeeking = false;
+      this.userPaused = false;
+      this.pauseRecoveryAttempts = 0;
+      
+      console.log('🎬 Video player cleanup completed');
     },
 
-    handleBackNavigation(event) {
-      // Handle browser back button
-      if (this.isFullscreen) {
-        event.preventDefault();
-        this.exitFullscreen();
-      }
+    handleBackNavigation() {
+      console.log('🎬 Back navigation detected');
+      // Handle browser/mobile back button
+      this.handleNavigationCleanup();
+    },
+
+    // Comprehensive cleanup for navigation (mobile back button, browser back, route change)
+    async handleNavigationCleanup() {
+      console.log('🎬 Starting navigation cleanup');
       
-      // Stop video playback when browser back is pressed
-      if (this.player && this.isPlaying) {
-        this.player.pause();
-        this.player.muted(true);
+      try {
+        // Exit fullscreen if active
+      if (this.isFullscreen) {
+          await this.exitFullscreen();
+        }
+        
+        // Clean up video player completely
+        this.cleanupVideoPlayer();
+        
+        // IMMEDIATE emergency scroll reset first
+        this.emergencyScrollReset();
+        
+        // Then do comprehensive reset
+        this.resetPageStyles();
+        
+        // Force scroll restoration with multiple attempts
+        this.restorePageScroll();
+        
+        console.log('🎬 Navigation cleanup completed');
+      } catch (error) {
+        console.error('🎬 Navigation cleanup error:', error);
+        // Emergency fallback
+        this.emergencyScrollReset();
+      }
+    },
+
+    // Emergency scroll reset - called immediately when navigation happens
+    emergencyScrollReset() {
+      try {
+        console.log('🎬 EMERGENCY SCROLL RESET');
+        
+        // Nuclear approach - remove everything that could block scroll
+        document.body.style.cssText = '';
+        document.documentElement.style.cssText = '';
+        
+        // Force enable scroll
+        document.body.style.overflow = 'auto';
+        document.body.style.position = 'static';
+        document.body.style.height = 'auto';
+        document.body.style.width = 'auto';
+        document.body.style.transform = 'none';
+        document.body.style.willChange = 'auto';
+        document.body.style.touchAction = 'auto';
+        document.body.style.pointerEvents = 'auto';
+        document.body.style.userSelect = 'auto';
+        document.body.style.webkitUserSelect = 'auto';
+        document.body.style.webkitOverflowScrolling = 'touch';
+        
+        // Same for HTML
+        document.documentElement.style.overflow = 'auto';
+        document.documentElement.style.height = 'auto';
+        document.documentElement.style.position = 'static';
+        
+        // Remove video classes immediately
+        document.body.classList.remove('vjs-fullscreen', 'video-playing', 'no-scroll');
+        document.documentElement.classList.remove('vjs-fullscreen', 'video-playing', 'no-scroll');
+        
+        // Force scroll test
+        window.scrollTo(0, 1);
+        window.scrollTo(0, 0);
+        
+        console.log('🎬 Emergency scroll reset completed');
+      } catch (error) {
+        console.error('🎬 Emergency scroll reset error:', error);
+      }
+    },
+
+    // Reset all body/document styles that might interfere with page scrolling
+    resetPageStyles() {
+      try {
+        console.log('🎬 Starting page styles reset');
+        
+        // Restore original styles if available
+        if (this.originalBodyStyles && Object.keys(this.originalBodyStyles).length > 0) {
+          console.log('🎬 Restoring original body styles:', this.originalBodyStyles);
+          document.body.style.overflow = this.originalBodyStyles.overflow || 'auto';
+          document.body.style.position = this.originalBodyStyles.position || 'static';
+          document.body.style.height = this.originalBodyStyles.height || 'auto';
+          document.body.style.touchAction = this.originalBodyStyles.touchAction || 'auto';
+          document.body.style.userSelect = this.originalBodyStyles.userSelect || 'auto';
+          document.body.style.pointerEvents = this.originalBodyStyles.pointerEvents || 'auto';
+        } else {
+          // Fallback: force scrollable styles
+          console.log('🎬 No original styles found, using fallback');
+          document.body.style.overflow = 'auto';
+          document.body.style.position = 'static';
+          document.body.style.height = 'auto';
+          document.body.style.touchAction = 'auto';
+          document.body.style.userSelect = 'auto';
+          document.body.style.pointerEvents = 'auto';
+        }
+        
+        // Reset additional problematic styles
+        document.body.style.transform = '';
+        document.body.style.willChange = '';
+        document.body.style.webkitOverflowScrolling = 'touch';
+        document.body.style.minHeight = '100vh';
+        
+        // Reset HTML element
+        document.documentElement.style.overflow = 'auto';
+        document.documentElement.style.height = 'auto';
+        document.documentElement.style.position = 'static';
+        document.documentElement.style.touchAction = 'auto';
+        
+        // Remove video-related classes
+        document.body.classList.remove('vjs-fullscreen', 'video-playing');
+        document.documentElement.classList.remove('vjs-fullscreen', 'video-playing');
+        
+        // Add force scrollable temporarily
+        document.body.classList.add('force-scrollable');
+        setTimeout(() => {
+          document.body.classList.remove('force-scrollable');
+        }, 1000);
+        
+        // Reset viewport
+        const viewport = document.querySelector('meta[name="viewport"]');
+        if (viewport) {
+          viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, user-scalable=yes');
+        }
+        
+        console.log('🎬 Page styles reset completed');
+      } catch (error) {
+        console.error('🎬 Error resetting page styles:', error);
+        // Emergency reset
+        document.body.style.overflow = 'auto';
+        document.documentElement.style.overflow = 'auto';
+        document.body.style.position = 'static';
+        document.body.style.height = 'auto';
+      }
+    },
+
+    // Force restore page scrolling capability
+    restorePageScroll() {
+      try {
+        console.log('🎬 Starting scroll restoration');
+        
+        // Multiple attempts to restore scroll
+        const restoreAttempts = [
+          () => {
+            // Attempt 1: Immediate restoration
+            console.log('🎬 Scroll restore attempt 1');
+            document.body.style.overflow = 'auto';
+            document.documentElement.style.overflow = 'auto';
+            window.scrollTo(0, 0);
+            return Promise.resolve();
+          },
+          () => {
+            // Attempt 2: Force layout recalculation
+            console.log('🎬 Scroll restore attempt 2');
+            return new Promise(resolve => {
+              setTimeout(() => {
+                document.body.style.height = 'auto';
+                document.body.style.minHeight = '100vh';
+                document.body.style.position = 'static';
+                
+                // Force reflow
+                void document.body.offsetHeight;
+                void document.documentElement.offsetHeight;
+                
+                // Dispatch resize event
+                window.dispatchEvent(new Event('resize'));
+                
+                // Try scroll
+                window.scrollTo(0, 1);
+                window.scrollTo(0, 0);
+                
+                resolve();
+              }, 50);
+            });
+          },
+          () => {
+            // Attempt 3: DOM manipulation
+            console.log('🎬 Scroll restore attempt 3');
+            return new Promise(resolve => {
+              setTimeout(() => {
+                // Remove all potential scroll blockers
+                const body = document.body;
+                const html = document.documentElement;
+                
+                // Clear all inline styles that might block scroll
+                ['overflow', 'position', 'height', 'width', 'transform', 'touchAction'].forEach(prop => {
+                  body.style[prop] = '';
+                  html.style[prop] = '';
+                });
+                
+                // Force essential styles
+                body.style.overflow = 'auto';
+                body.style.position = 'static';
+                body.style.height = 'auto';
+                html.style.overflow = 'auto';
+                
+                // Force layout
+                body.offsetHeight;
+                
+                resolve();
+              }, 100);
+            });
+          },
+          () => {
+            // Attempt 4: Nuclear option
+            console.log('🎬 Scroll restore attempt 4 (nuclear)');
+            return new Promise(resolve => {
+              setTimeout(() => {
+                // Remove all classes that might interfere
+                document.body.className = document.body.className.replace(/vjs-\S+/g, '');
+                document.documentElement.className = document.documentElement.className.replace(/vjs-\S+/g, '');
+                
+                // Force scroll capability
+                document.body.style.cssText = 'overflow: auto !important; position: static !important; height: auto !important;';
+                document.documentElement.style.cssText = 'overflow: auto !important; height: auto !important;';
+                
+                // Try to scroll
+                window.scrollTo(0, 0);
+                
+                resolve();
+              }, 200);
+            });
+          }
+        ];
+        
+        // Execute attempts sequentially
+        restoreAttempts.reduce((promise, attempt) => {
+          return promise.then(attempt);
+        }, Promise.resolve()).then(() => {
+          console.log('🎬 All scroll restoration attempts completed');
+        });
+        
+      } catch (error) {
+        console.error('🎬 Error restoring page scroll:', error);
+        // Emergency fallback
+        document.body.style.overflow = 'auto';
+        document.documentElement.style.overflow = 'auto';
+        document.body.style.position = 'static';
+        document.body.style.height = 'auto';
       }
     },
 
@@ -1483,80 +1841,204 @@ export default {
   bottom: 0;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.8) 0%,
-    rgba(0, 0, 0, 0) 15%,
-    rgba(0, 0, 0, 0) 50%,
-    rgba(0, 0, 0, 0.4) 80%,
-    rgba(0, 0, 0, 0.8) 100%
+    rgba(0, 0, 0, 0.9) 0%,
+    rgba(0, 0, 0, 0.3) 10%,
+    rgba(0, 0, 0, 0.1) 25%,
+    rgba(0, 0, 0, 0) 40%,
+    rgba(0, 0, 0, 0) 60%,
+    rgba(0, 0, 0, 0.1) 75%,
+    rgba(0, 0, 0, 0.6) 90%,
+    rgba(0, 0, 0, 0.95) 100%
   );
   opacity: 1;
-  transition: opacity 0.4s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 20px;
+  padding: 24px 32px;
   z-index: 9999;
   pointer-events: auto;
+  /* Remove backdrop blur that was affecting video */
 }
 
 .top-controls {
   width: 100%;
-  padding: 10px 20px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 
 .top-left {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 16px;
 }
 
-.back-button {
-  background: rgba(128, 128, 128, 0.5);
-  border: none;
+.top-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.top-right {
+  display: flex;
+  align-items: center;
+}
+
+.top-control-btn {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  width: 36px;
-  height: 36px;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.top-control-btn:hover {
+  background: rgba(0, 0, 0, 0.85);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+}
+
+.top-control-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke: white;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
+}
+
+.close-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+
+
+.back-button {
+  background: rgba(42, 42, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   padding: 0;
-  margin-right: 12px;
+  margin-right: 16px;
+  /* Removed backdrop blur to prevent video blurring */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .back-button:hover {
-  background: rgba(128, 128, 128, 0.7);
+  background: rgba(60, 60, 60, 0.9);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .back-button:active {
-  transform: scale(0.95);
+  transform: translateY(0) scale(0.96);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3), 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .back-button svg {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   stroke: white;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
 }
 
 .video-title {
   color: white;
   margin: 0;
-  font-size: 1.2em;
-  font-weight: 600;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
-  letter-spacing: 0.5px;
+  font-size: 1.4em;
+  font-weight: 700;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 4px 16px rgba(0, 0, 0, 0.4);
+  letter-spacing: 0.3px;
+  line-height: 1.3;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .center-controls {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 30px;
-  margin: 20px 0;
+  gap: 60px;
+  margin: 0;
+  padding: 40px 0;
+}
+
+.center-control-btn {
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 12px;
+  border-radius: 50%;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.center-control-btn:hover {
+  transform: scale(1.1);
+  background: rgba(0, 0, 0, 0.8);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8);
+}
+
+.center-control-btn svg {
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.8));
+}
+
+.skip-backward,
+.skip-forward {
+  position: relative;
+}
+
+.skip-text {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+}
+
+.play-pause-btn {
+  background: rgba(0, 0, 0, 0.7);
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.play-pause-btn:hover {
+  background: rgba(0, 0, 0, 0.85);
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
 }
 
 .bottom-controls {
@@ -1575,13 +2057,76 @@ export default {
   padding-bottom: 0;
 }
 
-.progress-row {
+.bottom-row {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  margin-top: 2px;
+  margin-top: 12px;
+}
+
+.bottom-left {
+  display: flex;
+  align-items: center;
+}
+
+.bottom-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.bottom-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.quality-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.bottom-control-btn {
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.bottom-control-btn:hover {
+  background: rgba(0, 0, 0, 0.85);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+}
+
+.bottom-control-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: white;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
+}
+
+.control-label {
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
 }
 
 .progress-bar {
@@ -1589,15 +2134,19 @@ export default {
   height: 6px;
   width: 100%;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  overflow: visible; /* allow thumb to overflow */
-  transition: height 0.2s ease;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  overflow: visible;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(0, 0, 0, 0.2);
+  /* Removed backdrop blur to prevent video blurring */
 }
 
 .progress-bar:hover {
-  height: 8px;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 3px rgba(0, 0, 0, 0.3);
+  transform: scaleY(1.2);
 }
 
 .progress-background,
@@ -1611,16 +2160,56 @@ export default {
 }
 
 .progress-loaded {
-  background: rgba(255,255,255,0.4);
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  transition: all 0.3s ease;
 }
 
 .progress-played {
-  background: linear-gradient(90deg, #ff0062, #ff4081);
-  box-shadow: 0 0 10px rgba(255, 0, 98, 0.3);
-  border-top-right-radius: 8px;
-  border-bottom-right-radius: 8px;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
+  background: linear-gradient(90deg, #e50914 0%, #ff1744 50%, #e50914 100%);
+  box-shadow: 0 0 20px rgba(229, 9, 20, 0.5), 0 0 10px rgba(229, 9, 20, 0.3);
+  border-radius: 8px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.progress-played::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+  border-radius: 8px;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.progress-thumb {
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
+  border: 3px solid #e50914;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.4), 0 2px 6px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 15;
+}
+
+.progress-bar:hover .progress-thumb {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.2);
+  box-shadow: 0 6px 20px rgba(229, 9, 20, 0.6), 0 3px 10px rgba(0, 0, 0, 0.4);
 }
 
 .progress-slider {
@@ -1641,47 +2230,226 @@ export default {
 }
 
 .control-button {
-  background: rgba(255, 255, 255, 0.25);
-  border: none;
+  background: rgba(42, 42, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: white;
-  width: 44px;
-  height: 44px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   position: relative;
-  margin: 0 5px;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  margin: 0 8px;
+  /* Removed backdrop blur to prevent video blurring */
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3), 0 3px 12px rgba(0, 0, 0, 0.2);
 }
 
 .control-button:hover {
-  background: rgba(255, 255, 255, 0.35);
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background: rgba(60, 60, 60, 0.95);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-3px) scale(1.08);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.control-button:active {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .control-button svg {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   stroke: white;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  stroke-width: 2.5;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
 }
 
 .play-button {
-  width: 56px;
-  height: 56px;
-  background: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  width: 80px;
+  height: 60px;
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.95) 0%, rgba(179, 7, 16, 0.95) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(229, 9, 20, 0.4), 0 4px 16px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  border-radius: 30px;
+}
+
+.play-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 50%);
+  border-radius: 50%;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.play-button:hover::before {
+  opacity: 1;
+}
+
+.play-button:hover {
+  background: linear-gradient(135deg, rgba(229, 9, 20, 1) 0%, rgba(179, 7, 16, 1) 100%);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-4px) scale(1.1);
+  box-shadow: 0 16px 40px rgba(229, 9, 20, 0.5), 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Secondary Button Design - Same width and height as play button */
+.play-button.secondary {
+  width: 80px;
+  height: 60px;
+  background: linear-gradient(135deg, rgba(0, 150, 136, 0.95) 0%, rgba(0, 121, 107, 0.95) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 150, 136, 0.4), 0 4px 16px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  border-radius: 30px;
+}
+
+.play-button.secondary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 50%);
+  border-radius: 50%;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.play-button.secondary:hover::before {
+  opacity: 1;
+}
+
+.play-button.secondary:hover {
+  background: linear-gradient(135deg, rgba(0, 150, 136, 1) 0%, rgba(0, 121, 107, 1) 100%);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-4px) scale(1.1);
+  box-shadow: 0 16px 40px rgba(0, 150, 136, 0.5), 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Alternative Secondary Button Design - Blue Theme */
+.play-button.secondary-blue {
+  width: 80px;
+  height: 60px;
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.95) 0%, rgba(25, 118, 210, 0.95) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(33, 150, 243, 0.4), 0 4px 16px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  border-radius: 30px;
+}
+
+.play-button.secondary-blue::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 50%);
+  border-radius: 50%;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.play-button.secondary-blue:hover::before {
+  opacity: 1;
+}
+
+.play-button.secondary-blue:hover {
+  background: linear-gradient(135deg, rgba(33, 150, 243, 1) 0%, rgba(25, 118, 210, 1) 100%);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-4px) scale(1.1);
+  box-shadow: 0 16px 40px rgba(33, 150, 243, 0.5), 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Purple Secondary Button Design */
+.play-button.secondary-purple {
+  width: 80px;
+  height: 60px;
+  background: linear-gradient(135deg, rgba(156, 39, 176, 0.95) 0%, rgba(123, 31, 162, 0.95) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(156, 39, 176, 0.4), 0 4px 16px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  border-radius: 30px;
+}
+
+.play-button.secondary-purple::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 50%);
+  border-radius: 50%;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.play-button.secondary-purple:hover::before {
+  opacity: 1;
+}
+
+.play-button.secondary-purple:hover {
+  background: linear-gradient(135deg, rgba(156, 39, 176, 1) 0%, rgba(123, 31, 162, 1) 100%);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-4px) scale(1.1);
+  box-shadow: 0 16px 40px rgba(156, 39, 176, 0.5), 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Orange Secondary Button Design */
+.play-button.secondary-orange {
+  width: 80px;
+  height: 60px;
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.95) 0%, rgba(245, 124, 0, 0.95) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(255, 152, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  border-radius: 30px;
+}
+
+.play-button.secondary-orange::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 50%);
+  border-radius: 50%;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.play-button.secondary-orange:hover::before {
+  opacity: 1;
+}
+
+.play-button.secondary-orange:hover {
+  background: linear-gradient(135deg, rgba(255, 152, 0, 1) 0%, rgba(245, 124, 0, 1) 100%);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-4px) scale(1.1);
+  box-shadow: 0 16px 40px rgba(255, 152, 0, 0.5), 0 8px 20px rgba(0, 0, 0, 0.4);
 }
 
 .play-button svg {
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
+  stroke-width: 2;
 }
 
 .button-text {
@@ -1691,18 +2459,33 @@ export default {
   color: white;
 }
 
-.quality-selector {
-  background: rgba(255, 255, 255, 0.2);
+.time-display {
   color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  margin-right: 10px;
-  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: 0.3px;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-.quality-selector:hover {
-  background: rgba(255, 255, 255, 0.3);
+.quality-selector {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: white;
 }
 
 .controls-hidden {
@@ -1721,27 +2504,76 @@ export default {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.2);
-  padding: 8px 14px;
-  border-radius: 6px;
+  gap: 12px;
+  background: rgba(42, 42, 42, 0.95);
+  padding: 12px 20px;
+  border-radius: 16px;
   cursor: pointer;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  transition: all 0.2s ease;
+  /* Removed backdrop blur to prevent video blurring */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .resolution-container:hover {
-  background: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background: rgba(60, 60, 60, 0.95);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .resolution-text {
   color: white;
-  font-size: 14px;
-  font-weight: 600;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  font-size: 15px;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  letter-spacing: 0.3px;
+}
+
+.settings-icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: rotate(90deg);
+}
+
+.settings-icon {
+  width: 20px;
+  height: 20px;
+  stroke: white;
+  stroke-width: 2;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+}
+
+.fullscreen-btn {
+  background: rgba(42, 42, 42, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  width: 48px;
+  height: 48px;
+  margin-left: 8px;
+}
+
+.fullscreen-btn:hover {
+  background: rgba(60, 60, 60, 0.95);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px) scale(1.05);
+}
+
+.fullscreen-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.5;
 }
 
 .quality-selector {
@@ -1756,15 +2588,19 @@ export default {
 
 /* Mobile Specific Styles */
 .mobile-view .custom-controls-overlay {
-  padding: 15px;
+  padding: 20px 16px;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.9) 0%,
-    rgba(0, 0, 0, 0) 20%,
-    rgba(0, 0, 0, 0) 40%,
-    rgba(0, 0, 0, 0.5) 80%,
-    rgba(0, 0, 0, 0.9) 100%
+    rgba(0, 0, 0, 0.95) 0%,
+    rgba(0, 0, 0, 0.4) 8%,
+    rgba(0, 0, 0, 0.1) 20%,
+    rgba(0, 0, 0, 0) 35%,
+    rgba(0, 0, 0, 0) 65%,
+    rgba(0, 0, 0, 0.1) 80%,
+    rgba(0, 0, 0, 0.4) 92%,
+    rgba(0, 0, 0, 0.95) 100%
   );
+  /* Removed backdrop blur to prevent video blurring */
 }
 
 .rotation-hint {
@@ -1810,47 +2646,96 @@ export default {
 /* Mobile Optimizations */
 @media (max-width: 768px) {
   .custom-controls-overlay {
-    padding: 15px;
+    padding: 20px 16px;
     background: linear-gradient(
       to bottom,
-      rgba(0, 0, 0, 0.9) 0%,
-      rgba(0, 0, 0, 0) 20%,
+      rgba(0, 0, 0, 0.95) 0%,
+      rgba(0, 0, 0, 0.3) 10%,
+      rgba(0, 0, 0, 0.1) 25%,
       rgba(0, 0, 0, 0) 40%,
-      rgba(0, 0, 0, 0.5) 80%,
-      rgba(0, 0, 0, 0.9) 100%
+      rgba(0, 0, 0, 0) 60%,
+      rgba(0, 0, 0, 0.1) 75%,
+      rgba(0, 0, 0, 0.3) 90%,
+      rgba(0, 0, 0, 0.95) 100%
     );
+    /* Removed backdrop blur to prevent video blurring */
   }
 
   .top-controls {
-    padding: 10px;
+    padding: 16px 12px;
   }
 
   .back-button {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
   }
 
-  .back-arrow {
-    font-size: 20px;
+  .back-button svg {
+    width: 22px;
+    height: 22px;
   }
 
   .video-title {
-    font-size: 1.1em;
+    font-size: 1.2em;
+    font-weight: 600;
   }
 
   .center-controls {
-    gap: 20px;
+    gap: 32px;
+    margin: 24px 0;
   }
 
   .control-button {
-    width: 40px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.3);
+    width: 52px;
+    height: 52px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 3px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  .control-button svg {
+    width: 26px;
+    height: 26px;
   }
 
   .play-button {
-    width: 48px;
-    height: 48px;
+    width: 72px;
+    height: 54px;
+    box-shadow: 0 8px 28px rgba(229, 9, 20, 0.5), 0 4px 14px rgba(0, 0, 0, 0.4);
+    border-radius: 27px;
+  }
+
+  /* Mobile Secondary Button Styles - Same width and height */
+  .play-button.secondary {
+    width: 72px;
+    height: 54px;
+    box-shadow: 0 8px 28px rgba(0, 150, 136, 0.5), 0 4px 14px rgba(0, 0, 0, 0.4);
+    border-radius: 27px;
+  }
+
+  .play-button.secondary-blue {
+    width: 72px;
+    height: 54px;
+    box-shadow: 0 8px 28px rgba(33, 150, 243, 0.5), 0 4px 14px rgba(0, 0, 0, 0.4);
+    border-radius: 27px;
+  }
+
+  .play-button.secondary-purple {
+    width: 72px;
+    height: 54px;
+    box-shadow: 0 8px 28px rgba(156, 39, 176, 0.5), 0 4px 14px rgba(0, 0, 0, 0.4);
+    border-radius: 27px;
+  }
+
+  .play-button.secondary-orange {
+    width: 72px;
+    height: 54px;
+    box-shadow: 0 8px 28px rgba(255, 152, 0, 0.5), 0 4px 14px rgba(0, 0, 0, 0.4);
+    border-radius: 27px;
+  }
+
+  .play-button svg {
+    width: 32px;
+    height: 32px;
   }
 
   .button-text {
@@ -1862,20 +2747,26 @@ export default {
   }
 
   .quality-selector {
-    font-size: 12px;
-    padding: 4px 8px;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 10px;
   }
 
   .resolution-container {
-    padding: 6px 10px;
+    padding: 10px 16px;
+    border-radius: 14px;
+    gap: 10px;
   }
 
   .resolution-text {
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 600;
   }
 
   .time-display {
-    font-size: 0.9em;
+    font-size: 14px;
+    padding: 6px 12px;
+    border-radius: 10px;
   }
 
   .volume-control {
@@ -2104,6 +2995,32 @@ export default {
   .progress-bar {
     margin: 10px 0;
   }
+
+  /* Landscape Secondary Button Styles - Same dimensions */
+  .play-button.secondary,
+  .play-button.secondary-blue,
+  .play-button.secondary-purple,
+  .play-button.secondary-orange {
+    width: 72px;
+    height: 54px;
+    border-radius: 27px;
+  }
+
+  .play-button.secondary {
+    box-shadow: 0 8px 28px rgba(0, 150, 136, 0.5), 0 4px 14px rgba(0, 0, 0, 0.4);
+  }
+
+  .play-button.secondary-blue {
+    box-shadow: 0 8px 28px rgba(33, 150, 243, 0.5), 0 4px 14px rgba(0, 0, 0, 0.4);
+  }
+
+  .play-button.secondary-purple {
+    box-shadow: 0 8px 28px rgba(156, 39, 176, 0.5), 0 4px 14px rgba(0, 0, 0, 0.4);
+  }
+
+  .play-button.secondary-orange {
+    box-shadow: 0 8px 28px rgba(255, 152, 0, 0.5), 0 4px 14px rgba(0, 0, 0, 0.4);
+  }
 }
 
 /* Add loading indicator */
@@ -2222,13 +3139,12 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  /* Removed backdrop blur to prevent video blurring */
 }
 
 .loading-spinner {
@@ -2300,5 +3216,40 @@ export default {
     width: 50px;
     height: 50px;
   }
+}
+
+/* Ensure proper scroll restoration after video cleanup */
+.scroll-restored {
+  overflow: auto !important;
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  touch-action: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  transform: none !important;
+  pointer-events: auto !important;
+}
+
+/* Force scroll capability class */
+.force-scrollable {
+  overflow: auto !important;
+  height: auto !important;
+  min-height: 100vh !important;
+  position: static !important;
+  touch-action: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  pointer-events: auto !important;
+  user-select: auto !important;
+  -webkit-user-select: auto !important;
+  transform: none !important;
+  will-change: auto !important;
+}
+
+/* Reset any video-related transforms */
+.video-cleanup-reset {
+  transform: none !important;
+  transform-style: flat !important;
+  backface-visibility: visible !important;
+  will-change: auto !important;
 }
 </style>

@@ -217,7 +217,7 @@ export default {
 
         // Create axios instance with proper headers
         const axiosInstance = axios.create({
-          baseURL: 'https://ott.no1news.in/',
+          baseURL: 'https://ott.no1news.in',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${currentToken}`
@@ -270,7 +270,7 @@ export default {
               
               // Create new axios instance for verification
               const verifyAxios = axios.create({
-                baseURL: 'https://ott.no1news.in/',
+                baseURL: 'https://ott.no1news.in',
                 headers: {
                   'Content-Type': 'application/json',
                   'Authorization': `Bearer ${verifyToken}`

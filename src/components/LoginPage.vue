@@ -204,7 +204,7 @@ export default {
       showTermsModal: false,
       showPrivacyModal: false,
       isLoading: false,
-      apiBaseUrl: 'https://ott.no1news.in/',
+      apiBaseUrl: 'https://ott.no1news.in',
       referralCode: '',
       otpError: '',
       smsReceiver: null

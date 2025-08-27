@@ -225,7 +225,7 @@ export default {
       totalReferrals: 0,
       referredUsers: [],
       showCopySuccess: false,
-      baseUrl: 'https://ott.no1news.in/'
+      baseUrl: 'https://ott.no1news.in'
     }
   },
   methods: {

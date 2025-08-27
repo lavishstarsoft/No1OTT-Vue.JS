@@ -85,7 +85,7 @@ import axios from 'axios'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
-const API_BASE_URL = 'https://ott.no1news.in/'
+const API_BASE_URL = 'https://ott.no1news.in'
 const DEFAULT_IMAGE = '/images/placeholder.png'
 
 export default {

@@ -338,7 +338,7 @@ export default {
         pincode: '',
         referral_code: ''
       },
-      baseUrl: 'https://ott.no1news.in/',
+      baseUrl: 'https://ott.no1news.in',
       loading: false,
       success: false,
       error: null,

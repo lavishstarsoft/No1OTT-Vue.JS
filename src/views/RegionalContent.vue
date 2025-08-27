@@ -99,7 +99,47 @@
         <h2 class="text-2xl font-bold text-white mb-4 text-center">Select Your District</h2>
         <p class="text-gray-300 text-center mb-6">Choose your district in {{ selectedStateObj?.name }}</p>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+      
+      <!-- Loading Districts Animation -->
+      <div v-if="loadingDistricts">
+        <!-- Loading Spinner -->
+        <div class="flex flex-col items-center justify-center py-8 mb-6">
+          <div class="relative">
+            <div class="animate-spin rounded-full h-16 w-16 border-4 border-green-600 border-t-transparent"></div>
+            <div class="absolute inset-0 rounded-full border-4 border-blue-600 border-t-transparent animate-ping"></div>
+          </div>
+          <div class="mt-6 text-xl font-medium text-white/80">Loading Districts...</div>
+          <div class="mt-2 text-sm text-white/60">Please wait while we fetch district data</div>
+        </div>
+        
+        <!-- Loading Skeleton Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          <div v-for="n in 8" :key="n" class="loading-skeleton-card">
+            <div class="w-full pb-[100%] bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700 animate-pulse rounded-t-xl"></div>
+            <div class="p-3">
+              <div class="h-4 bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700 animate-pulse rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Error Districts -->
+      <div v-else-if="errorDistricts" class="flex flex-col items-center justify-center py-12">
+        <div class="bg-red-600/20 border border-red-500/30 rounded-2xl p-8 max-w-md text-center">
+          <div class="text-red-400 text-6xl mb-4">⚠️</div>
+          <h3 class="text-xl font-bold mb-2">Error Loading Districts</h3>
+          <p class="text-white/70 mb-6">{{ errorDistricts }}</p>
+          <button 
+            @click="retryLoadDistricts"
+            class="px-6 py-3 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+      
+      <!-- Districts Grid -->
+      <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
         <button 
           v-for="district in districts" 
           :key="district.id"
@@ -296,9 +336,17 @@ export default {
       selectedConstituency: '',
       selectedMandal: '',
       selectedVillage: '',
-      // Loading and error
+      // Loading and error states
       loadingVideos: false,
+      loadingDistricts: false,
+      loadingConstituencies: false,
+      loadingMandals: false,
+      loadingVillages: false,
       errorVideos: null,
+      errorDistricts: null,
+      errorConstituencies: null,
+      errorMandals: null,
+      errorVillages: null,
       // Images
       defaultStateImg: 'https://i.pinimg.com/736x/e4/26/4a/e4264af50836a4d71345ad3c6362a1bc.jpg',
       defaultDistrictImg: 'https://i.pinimg.com/736x/e4/26/4a/e4264af50836a4d71345ad3c6362a1bc.jpg',
@@ -338,9 +386,42 @@ export default {
       return items
     }
   },
+  watch: {
+    // Watch for route changes to handle state_id parameter updates
+    '$route.query.state_id': {
+      handler: async function(newStateId) {
+        if (newStateId && this.states.length > 0) {
+          const state = this.states.find(s => String(s.id) === String(newStateId))
+          if (state && this.selectedState !== state.id) {
+            console.log('🗺️ Route changed, auto-selecting state:', state.name)
+            this.selectedState = state.id
+            await this.onStateChange()
+          }
+        } else if (!newStateId && this.selectedState) {
+          // If state_id is removed from URL, reset selection
+          this.resetFilters()
+        }
+      },
+      immediate: false
+    }
+  },
   async created() {
     await this.fetchStates()
-      this.fetchVideos()
+    
+    // Check if state_id is provided in query parameters after states are loaded
+    const stateId = this.$route.query.state_id
+    if (stateId && this.states.length > 0) {
+      const state = this.states.find(s => String(s.id) === String(stateId))
+      if (state) {
+        console.log('🗺️ Auto-selecting state from URL:', state.name)
+        this.selectedState = state.id
+        await this.onStateChange()
+        return // Exit early since onStateChange handles video fetching
+      }
+    }
+    
+    // Only fetch videos if no state was auto-selected
+    this.fetchVideos()
   },
   methods: {
     goBack() {
@@ -368,8 +449,22 @@ export default {
       }
     },
     async fetchStates() {
-      let states = await this.fetchData('frontend/states/', {}, 'States load చేయడంలో లోపం')
-      this.states = states
+      try {
+        const response = await api.get('frontend/states/')
+        if (response.data.status === 'success') {
+          this.states = response.data.data.map(item => ({
+            ...item,
+            image: item.image || item.image_url || null,
+            imageLoaded: false
+          }))
+          console.log('🗺️ States loaded:', this.states.length)
+        } else {
+          throw new Error('Invalid response')
+        }
+      } catch (err) {
+        console.error('States API Error:', err)
+        this.errorVideos = 'States load చేయడంలో లోపం'
+      }
     },
     async onStateChange() {
       this.selectedDistrict = ''
@@ -380,8 +475,31 @@ export default {
       this.constituencies = []
       this.mandals = []
       this.villages = []
+      this.errorDistricts = null
+      
       if (this.selectedState) {
-        this.districts = await this.fetchData('frontend/districts/', { state_id: this.selectedState }, 'Districts load చేయడంలో లోపం')
+        this.loadingDistricts = true
+        console.log('🏛️ Loading districts for state:', this.selectedStateObj?.name)
+        try {
+          const response = await api.get('frontend/districts/', { 
+            params: { state_id: this.selectedState } 
+          })
+          if (response.data.status === 'success') {
+            this.districts = response.data.data.map(item => ({
+              ...item,
+              image: item.image || item.image_url || null,
+              imageLoaded: false
+            }))
+            console.log('🏛️ Districts loaded:', this.districts.length)
+          } else {
+            throw new Error('Invalid response')
+          }
+        } catch (err) {
+          console.error('Districts API Error:', err)
+          this.errorDistricts = 'Districts load చేయడంలో లోపం. దయచేసి మళ్లీ ప్రయత్నించండి.'
+        } finally {
+          this.loadingDistricts = false
+        }
       }
       this.fetchVideos()
     },
@@ -498,7 +616,8 @@ export default {
         district.imageLoaded = true
       }
     },
-    selectState(state) {
+    async selectState(state) {
+      console.log('🗺️ State selected:', state.name)
       this.selectedState = state.id
       this.selectedDistrict = ''
       this.selectedConstituency = ''
@@ -508,7 +627,7 @@ export default {
       this.constituencies = []
       this.mandals = []
       this.villages = []
-      this.onStateChange()
+      await this.onStateChange()
     },
     selectDistrict(district) {
       this.selectedDistrict = district.id
@@ -550,6 +669,13 @@ export default {
     closePlayer() {
       this.showPlayer = false
       this.selectedVideo = null
+    },
+    
+    // Retry methods for different data types
+    async retryLoadDistricts() {
+      if (this.selectedState) {
+        await this.onStateChange()
+      }
     }
   },
   components: {
@@ -712,6 +838,46 @@ export default {
   }
 }
 
+/* Loading Skeleton Card */
+.loading-skeleton-card {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: skeleton-pulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes skeleton-pulse {
+  0% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Enhanced Shimmer Animation */
+@keyframes enhanced-shimmer {
+  0% {
+    background-position: -200px 0;
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+    opacity: 0.6;
+  }
+}
+
+.enhanced-shimmer {
+  background: linear-gradient(90deg, #2a2a3e 25%, #4a4a6e 50%, #2a2a3e 75%);
+  background-size: 200px 100%;
+  animation: enhanced-shimmer 2s infinite;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .filter-card {
@@ -724,6 +890,10 @@ export default {
   .filter-search, .filter-select {
     font-size: 0.85rem;
     padding: 0.4rem 0.7rem;
+  }
+  
+  .loading-skeleton-card {
+    min-height: 120px;
   }
 }
 </style> 

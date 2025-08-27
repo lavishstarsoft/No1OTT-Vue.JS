@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://ott.no1news.in/';
+const API_BASE_URL = 'https://ott.no1news.in';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

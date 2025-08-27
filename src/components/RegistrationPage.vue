@@ -412,7 +412,7 @@ export default {
       states: [],
       isLoadingStates: false,
       isLoadingGoogleMaps: false,
-      apiBaseUrl: 'https://ott.no1news.in/',
+      apiBaseUrl: 'https://ott.no1news.in',
       addressSuggestions: [],
       placesService: null,
       geocoder: null,

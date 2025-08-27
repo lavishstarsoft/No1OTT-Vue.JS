@@ -93,7 +93,7 @@ import LiveTVPlayer from './LiveTVPlayer.vue'
 import axios from 'axios'
 
 // API బేస్ URL ని కాన్స్టెంట్‌గా డిఫైన్ చేయడం
-const API_BASE_URL = 'https://ott.no1news.in/'
+const API_BASE_URL = 'https://ott.no1news.in'
 
 export default {
   name: 'AppHeader',

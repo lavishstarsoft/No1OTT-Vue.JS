@@ -430,11 +430,24 @@
           </button>
         </div>
 
+        <!-- Movie Preview with Image -->
+        <div class="flex items-center gap-4 mb-6 p-4 bg-[#121212] rounded-lg">
+          <img 
+            :src="movie.thumbnail_url || movie.portrait_thumbnail_url || movie.poster_url" 
+            :alt="movie.title"
+            class="w-16 h-24 object-cover rounded-lg"
+          />
+          <div class="flex-1">
+            <h4 class="font-semibold text-white mb-1">{{ movie.title }}</h4>
+            <p class="text-sm text-gray-400 line-clamp-2">{{ movie.description }}</p>
+          </div>
+        </div>
+
         <!-- Share Options -->
         <div class="grid grid-cols-2 gap-4 mb-6">
           <!-- WhatsApp -->
           <button 
-            @click="shareToWhatsApp"
+            @click="shareToWhatsAppWithImage"
             class="flex items-center gap-3 bg-[#25D366]/10 p-4 rounded-lg hover:bg-[#25D366]/20 transition-all"
           >
             <i class="fab fa-whatsapp text-[#25D366] text-2xl"></i>
@@ -466,6 +479,17 @@
           >
             <i class="fas fa-link text-white text-2xl"></i>
             <span>Copy Link</span>
+          </button>
+        </div>
+
+        <!-- Test Social Preview Button -->
+        <div class="mb-6">
+          <button 
+            @click="testSocialPreview"
+            class="w-full flex items-center justify-center gap-3 bg-[#c30059]/10 p-4 rounded-lg hover:bg-[#c30059]/20 transition-all border border-[#c30059]/20"
+          >
+            <i class="fas fa-eye text-[#c30059] text-xl"></i>
+            <span class="text-[#c30059] font-medium">Test Social Media Preview</span>
           </button>
         </div>
 
@@ -501,7 +525,7 @@ import 'video.js/dist/video-js.css';
 import store from '@/store';
 
 // Define API base URL constant
-const API_BASE_URL = 'https://ott.no1news.in/'
+const API_BASE_URL = 'https://ott.no1news.in'
 
 // Create axios instance with default config
 const axiosInstance = axios.create({
@@ -797,6 +821,13 @@ export default {
             this.initializeHeroVideo();
           });
         }
+        
+        // Update meta tags when movie data changes
+        if (newMovie) {
+          this.$nextTick(() => {
+            this.updateMetaTags();
+          });
+        }
       }
     },
     // Debug watcher for isPromoPlaying
@@ -821,6 +852,11 @@ export default {
 
       // Add scroll event listener for header background
       window.addEventListener('scroll', this.handleScroll)
+      
+      // Update meta tags after component is mounted
+      if (this.movie) {
+        this.updateMetaTags();
+      }
     })
   },
   beforeUnmount() {
@@ -1184,33 +1220,120 @@ export default {
       }
     },
     shareMovie() {
-      // Get the current URL for sharing
+      // Get the current URL for sharing 
       const shareUrl = this.shareUrl;
       
-      // Prepare share data
+      // Get the best available image URL
+      const imageUrl = this.movie.thumbnail_url || this.movie.portrait_thumbnail_url || this.movie.poster_url;
+      
+      // Prepare share data with image
       const shareData = {
         title: this.movie.title,
         text: this.movie.description,
         url: shareUrl
       };
 
+      // Add image to share data if available
+      if (imageUrl) {
+        shareData.files = [imageUrl];
+      }
+
       // Check if Web Share API is supported
       if (typeof navigator !== 'undefined' && navigator.share && this.isMobileDevice) {
-        navigator.share(shareData)
-          .then(() => {
-            this.$store.dispatch('showToast', {
-              message: 'Shared successfully!',
-              type: 'success'
+        // For mobile devices, try to share with image
+        if (imageUrl && navigator.canShare && navigator.canShare(shareData)) {
+          navigator.share(shareData)
+            .then(() => {
+              this.$store.dispatch('showToast', {
+                message: 'Shared successfully with image!',
+                type: 'success'
+              });
+            })
+            .catch((error) => {
+              console.error('Error sharing with image:', error);
+              // Fallback to sharing without image
+              this.shareWithoutImage(this.shareUrl);
             });
-          })
-          .catch((error) => {
-            console.error('Error sharing:', error);
-            this.showShareDialog = true;
-          });
+        } else {
+          // Fallback to sharing without image
+          this.shareWithoutImage(this.shareUrl);
+        }
       } else {
         // Fallback for desktop or unsupported browsers
         this.showShareDialog = true;
       }
+    },
+
+    shareWithoutImage(shareUrl) {
+      const shareData = {
+        title: this.movie.title,
+        text: this.movie.description,
+        url: shareUrl
+      };
+
+      navigator.share(shareData)
+        .then(() => {
+          this.$store.dispatch('showToast', {
+            message: 'Shared successfully!',
+            type: 'success'
+          });
+        })
+        .catch((error) => {
+          console.error('Error sharing:', error);
+          this.showShareDialog = true;
+        });
+    },
+    
+    updateMetaTags() {
+      if (!this.movie) return;
+      
+      const imageUrl = this.movie.thumbnail_url || this.movie.portrait_thumbnail_url || this.movie.poster_url;
+      const shareUrl = this.shareUrl;
+      const title = this.movie.title;
+      const description = this.movie.description;
+      
+      console.log('Updating meta tags for:', title);
+      console.log('Image URL:', imageUrl);
+      console.log('Share URL:', shareUrl);
+      
+      // Update or create meta tags for Open Graph
+      this.updateMetaTag('og:title', title);
+      this.updateMetaTag('og:description', description);
+      this.updateMetaTag('og:image', imageUrl);
+      this.updateMetaTag('og:url', shareUrl);
+      this.updateMetaTag('og:type', 'video.movie');
+      this.updateMetaTag('og:site_name', 'No1 OTT');
+      
+      // Update or create meta tags for Twitter Card
+      this.updateMetaTag('twitter:card', 'summary_large_image');
+      this.updateMetaTag('twitter:title', title);
+      this.updateMetaTag('twitter:description', description);
+      this.updateMetaTag('twitter:image', imageUrl);
+      this.updateMetaTag('twitter:url', shareUrl);
+      
+      // Update page title
+      document.title = `${title} - No1 OTT`;
+      
+      console.log('Meta tags updated successfully');
+    },
+    
+    updateMetaTag(name, content) {
+      if (!content) return;
+      
+      let meta = document.querySelector(`meta[name="${name}"]`) || 
+                 document.querySelector(`meta[property="${name}"]`);
+      
+      if (!meta) {
+        meta = document.createElement('meta');
+        if (name.startsWith('og:')) {
+          meta.setAttribute('property', name);
+        } else {
+          meta.setAttribute('name', name);
+        }
+        document.head.appendChild(meta);
+      }
+      
+      meta.setAttribute('content', content);
     },
     toggleSearch() {
       this.isSearchActive = !this.isSearchActive;
@@ -1276,6 +1399,9 @@ export default {
             title: this.capitalizeText(response.data.title),
             description: this.capitalizeText(response.data.description)
           };
+          
+          // Update meta tags for social sharing
+          this.updateMetaTags();
           
           // Set video URL based on available formats
           if (response.data.hls_url) {
@@ -1627,23 +1753,160 @@ export default {
       }
     },
     shareToWhatsApp() {
-      const text = `Check out "${this.movie.title}" on No1 OTT!\n\n${this.movie.description}\n\n`;
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text + this.shareUrl)}`;
+      const imageUrl = this.movie.thumbnail_url || this.movie.portrait_thumbnail_url || this.movie.poster_url;
+      const text = `Check out "${this.movie.title}" on No1 OTT!\n\n${this.movie.description}\n\n${this.shareUrl}`;
+      
+      // For WhatsApp, we need to use a different approach for image sharing
+      if (imageUrl && this.isMobileDevice) {
+        // Try to use native sharing with image for mobile devices
+        const shareData = {
+          title: this.movie.title,
+          text: text,
+          url: this.shareUrl,
+          files: [imageUrl]
+        };
+        
+        if (navigator.canShare && navigator.canShare(shareData)) {
+          navigator.share(shareData)
+            .then(() => {
+              this.$store.dispatch('showToast', {
+                message: 'Shared to WhatsApp with image!',
+                type: 'success'
+              });
+            })
+            .catch((error) => {
+              console.error('WhatsApp share error:', error);
+              // Fallback to text-only WhatsApp sharing
+              this.shareToWhatsAppTextOnly(text);
+            });
+        } else {
+          // Fallback to text-only WhatsApp sharing
+          this.shareToWhatsAppTextOnly(text);
+        }
+      } else {
+        // Desktop or no image available - use text-only sharing
+        this.shareToWhatsAppTextOnly(text);
+      }
+      
+      this.showShareDialog = false;
+    },
+
+    shareToWhatsAppTextOnly(text) {
+      // Use the share URL directly to trigger rich preview
+      const shareText = `${text}\n\n${this.shareUrl}`;
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
       if (typeof window !== 'undefined') {
         window.open(whatsappUrl, '_blank');
       }
-      this.showShareDialog = false;
+    },
+
+    // Alternative method for WhatsApp image sharing using canvas
+    async shareToWhatsAppWithImage() {
+      try {
+        const imageUrl = this.movie.thumbnail_url || this.movie.portrait_thumbnail_url || this.movie.poster_url;
+        
+        if (!imageUrl) {
+          this.shareToWhatsAppTextOnly(`Check out "${this.movie.title}" on No1 OTT!\n\n${this.movie.description}\n\n${this.shareUrl}`);
+          return;
+        }
+
+        // Create a canvas with the image and text overlay
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas size
+        canvas.width = 600;
+        canvas.height = 400;
+        
+        // Load the image
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        
+        img.onload = () => {
+          // Draw the image
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          
+          // Add a semi-transparent overlay for text readability
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+          ctx.fillRect(0, canvas.height - 120, canvas.width, 120);
+          
+          // Add text
+          ctx.fillStyle = 'white';
+          ctx.font = 'bold 24px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText(this.movie.title, canvas.width / 2, canvas.height - 80);
+          
+          ctx.font = '16px Arial';
+          ctx.fillText('Watch on No1 OTT', canvas.width / 2, canvas.height - 50);
+          
+          // Convert canvas to blob
+          canvas.toBlob((blob) => {
+            if (blob) {
+              // Create a file from the blob
+              const file = new File([blob], 'movie-share.jpg', { type: 'image/jpeg' });
+              
+              // Try to share with the generated image
+              const shareData = {
+                title: this.movie.title,
+                text: `Check out "${this.movie.title}" on No1 OTT!\n\n${this.shareUrl}`,
+                files: [file]
+              };
+              
+              if (navigator.canShare && navigator.canShare(shareData)) {
+                navigator.share(shareData)
+                  .then(() => {
+                    this.$store.dispatch('showToast', {
+                      message: 'Shared to WhatsApp with image!',
+                      type: 'success'
+                    });
+                  })
+                  .catch((error) => {
+                    console.error('WhatsApp share error:', error);
+                    this.shareToWhatsAppTextOnly(`Check out "${this.movie.title}" on No1 OTT!\n\n${this.movie.description}\n\n${this.shareUrl}`);
+                  });
+              } else {
+                this.shareToWhatsAppTextOnly(`Check out "${this.movie.title}" on No1 OTT!\n\n${this.movie.description}\n\n${this.shareUrl}`);
+              }
+            }
+          }, 'image/jpeg', 0.8);
+        };
+        
+        img.onerror = () => {
+          // If image fails to load, fallback to text-only
+          this.shareToWhatsAppTextOnly(`Check out "${this.movie.title}" on No1 OTT!\n\n${this.movie.description}\n\n${this.shareUrl}`);
+        };
+        
+        img.src = imageUrl;
+        
+      } catch (error) {
+        console.error('Error creating WhatsApp image share:', error);
+        this.shareToWhatsAppTextOnly(`Check out "${this.movie.title}" on No1 OTT!\n\n${this.movie.description}\n\n${this.shareUrl}`);
+      }
     },
     shareToFacebook() {
-      const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(this.shareUrl)}`;
+      const imageUrl = this.movie.thumbnail_url || this.movie.portrait_thumbnail_url || this.movie.poster_url;
+      let facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(this.shareUrl)}`;
+      
+      // Add image URL to Facebook share if available
+      if (imageUrl) {
+        facebookUrl += `&picture=${encodeURIComponent(imageUrl)}`;
+      }
+      
       if (typeof window !== 'undefined') {
         window.open(facebookUrl, '_blank');
       }
       this.showShareDialog = false;
     },
     shareToTwitter() {
+      const imageUrl = this.movie.thumbnail_url || this.movie.portrait_thumbnail_url || this.movie.poster_url;
       const text = `Check out "${this.movie.title}" on No1 OTT!`;
-      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(this.shareUrl)}`;
+      let twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(this.shareUrl)}`;
+      
+      // Add image URL to Twitter share if available
+      if (imageUrl) {
+        twitterUrl += `&image=${encodeURIComponent(imageUrl)}`;
+      }
+      
       if (typeof window !== 'undefined') {
         window.open(twitterUrl, '_blank');
       }
@@ -1680,6 +1943,20 @@ export default {
           }, 2000);
         }
       }
+    },
+    
+    // Test social media preview
+    testSocialPreview() {
+      const testUrl = `${window.location.origin}/movie/${this.movie.id}?test=true`;
+      console.log('Testing social preview with URL:', testUrl);
+      
+      // Open in new tab for testing
+      window.open(testUrl, '_blank');
+      
+      this.$store.dispatch('showToast', {
+        message: 'Social preview test opened in new tab!',
+        type: 'info'
+      });
     }
   }
 };
@@ -1815,7 +2092,6 @@ export default {
 }
 
 .play-button {
-  gap: 0.75rem;
   background: linear-gradient(45deg, #c30059, #ff0062);
   color: white;
   font-weight: 600;

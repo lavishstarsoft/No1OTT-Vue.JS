@@ -136,6 +136,9 @@ export default {
     this.checkScrollButtons();
     // Add scroll event listener
     this.$refs.scrollContainer?.addEventListener('scroll', this.checkScrollButtons);
+    
+    // Ensure home page scrollability
+    this.ensureHomeScrollability();
   },
   beforeUnmount() {
     // Remove scroll event listener
@@ -226,6 +229,33 @@ export default {
       
       // Check if we can scroll right
       this.canScrollRight = container.scrollLeft < (container.scrollWidth - container.clientWidth);
+    },
+    
+    ensureHomeScrollability() {
+      console.log('🏠 Ensuring home page scrollability...');
+      
+      // Force enable scroll on home page
+      document.body.style.overflow = 'auto';
+      document.body.style.position = 'static';
+      document.body.style.height = 'auto';
+      document.body.style.width = 'auto';
+      document.body.style.transform = 'none';
+      document.body.style.willChange = 'auto';
+      document.body.style.touchAction = 'auto';
+      document.body.style.pointerEvents = 'auto';
+      
+      // Remove any video-related classes
+      document.body.classList.remove('vjs-fullscreen', 'video-playing', 'no-scroll', 'force-scrollable');
+      document.documentElement.classList.remove('vjs-fullscreen', 'video-playing', 'no-scroll');
+      
+      // Force a reflow
+      void document.body.offsetHeight;
+      
+      // Test scroll
+      window.scrollTo(0, 1);
+      window.scrollTo(0, 0);
+      
+      console.log('✅ Home page scrollability ensured');
     }
   },
   // Add activated hook for keep-alive
@@ -236,6 +266,11 @@ export default {
       this.dataLoaded = false
       this.fetchRecentlyAdded()
     }
+    
+    // Ensure scroll is restored when component is activated
+    this.$nextTick(() => {
+      this.ensureHomeScrollability();
+    });
   }
 }
 </script>

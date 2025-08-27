@@ -349,6 +349,62 @@ export default {
       return orderData;
     };
 
+    // Payment status polling function
+    const startPaymentStatusPolling = async (orderId, storedPaymentData) => {
+      console.log('Starting payment status polling for order:', orderId);
+      console.log('Stored payment data:', storedPaymentData);
+      let attempts = 0;
+      const maxAttempts = 10; // Check for 5 minutes (30 seconds * 10)
+      
+      const pollInterval = setInterval(async () => {
+        try {
+          attempts++;
+          console.log(`Payment status check attempt ${attempts}/${maxAttempts}`);
+          
+          // Check payment status with backend
+          const statusResponse = await axios.get(`/users/payment/check-status/${orderId}/`);
+          
+          if (statusResponse.data.status === 'completed') {
+            console.log('Payment completed successfully!');
+            clearInterval(pollInterval);
+            
+            // Clear pending payment
+            localStorage.removeItem('pending_payment');
+            
+            // Update store
+            store.commit('setLoading', false);
+            store.dispatch('showToast', {
+              message: 'Payment successful! Your subscription is now active.',
+              type: 'success'
+            });
+            
+            // Redirect to profile
+            router.push('/profile');
+            return;
+          }
+          
+          if (attempts >= maxAttempts) {
+            console.log('Max polling attempts reached');
+            clearInterval(pollInterval);
+            
+            // Keep payment data for App.vue to handle
+            console.log('Keeping payment data for later verification');
+            
+            store.dispatch('showToast', {
+              message: 'Payment verification is taking longer than expected. We will notify you once confirmed.',
+              type: 'warning'
+            });
+          }
+        } catch (error) {
+          console.error('Payment status check failed:', error);
+          
+          if (attempts >= maxAttempts) {
+            clearInterval(pollInterval);
+          }
+        }
+      }, 30000); // Check every 30 seconds
+    };
+
     const handlePaymentGateway = async () => {
       isProcessingPayment.value = true;
       try {
@@ -444,7 +500,71 @@ export default {
             theme: {
               color: '#c30059'
             },
+            // Better UPI configuration to prevent app closing
+            config: {
+              display: {
+                blocks: {
+                  upi: {
+                    name: 'Pay using UPI',
+                    instruments: [
+                      { method: 'upi' }
+                    ]
+                  },
+                  card: {
+                    name: 'Credit/Debit Cards',
+                    instruments: [
+                      { method: 'card' }
+                    ]
+                  },
+                  netbanking: {
+                    name: 'Net Banking',
+                    instruments: [
+                      { method: 'netbanking' }
+                    ]
+                  }
+                },
+                sequence: ['upi', 'card', 'netbanking'],
+                preferences: {
+                  show_default_blocks: true
+                }
+              }
+            },
+            // Enhanced retry configuration
+            retry: {
+              enabled: true,
+              max_count: 3
+            },
+            // Better timeout handling
+            timeout: 300, // 5 minutes
+            // Handle modal close (when user cancels or app redirects)
+            modal: {
+              ondismiss: async function() {
+                console.log('Razorpay modal dismissed, starting payment status check');
+                // Start background checking for payment status
+                setTimeout(async () => {
+                  // Try to get payment data from localStorage if available
+                  const storedPayment = localStorage.getItem('pending_payment');
+                  if (storedPayment) {
+                    const paymentInfo = JSON.parse(storedPayment);
+                    await startPaymentStatusPolling(orderData.order_id, paymentInfo);
+                  } else {
+                    await startPaymentStatusPolling(orderData.order_id, null);
+                  }
+                }, 2000); // Wait 2 seconds before starting checks
+              },
+              // Handle escape and back button
+              escape: true,
+              backdropclose: false
+            },
+            // Handle different payment methods
+            method: {
+              upi: {
+                // Handle UPI flow completion
+                flow: 'intent' // Use intent-based flow for better UPI handling
+              }
+            },
             handler: async (response) => {
+              // Now handle the payment success
               try {
                 store.commit('setLoading', true);
                 console.log('=== PAYMENT SUCCESSFUL ===');

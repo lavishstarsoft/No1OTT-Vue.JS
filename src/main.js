@@ -11,7 +11,7 @@ import './assets/main.css'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 
 // ==== APP VERSIONING & CACHE CLEAR LOGIC ====
-const APP_VERSION = '1.0.13'; // Change this on every new deployment
+const APP_VERSION = '1.0.17'; // Change this on every new deployment
 const cachedVersion = localStorage.getItem('app_version');
 
 // Clear cache and logout all users if version is different

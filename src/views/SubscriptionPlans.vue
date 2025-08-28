@@ -1,229 +1,363 @@
 <template>
-  <div class="min-h-screen bg-[#121212] text-white">
+  <div class="min-h-screen bg-gradient-to-br from-[#0a0a0a] via-[#1a1a1a] to-[#0f0f0f] text-white">
     <!-- Fullscreen Spinner Overlay -->
-    <div v-if="isProcessingPayment" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/70">
-      <i class="fas fa-spinner fa-spin text-5xl text-[#c30059] mb-4"></i>
-      <div class="text-lg font-semibold text-white">Processing Payment...</div>
-      <!-- Payment Warning Message -->
-      <div class="mt-6 p-4 bg-yellow-500/20 border border-yellow-500/40 rounded-lg max-w-md text-center">
-        <div class="flex items-center justify-center gap-2 mb-2">
-          <i class="fas fa-exclamation-triangle text-yellow-400"></i>
-          <span class="font-semibold text-yellow-400">Important!</span>
+    <div v-if="isProcessingPayment" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm">
+      <div class="relative">
+        <div class="w-16 h-16 border-4 border-[#c30059]/30 border-t-[#c30059] rounded-full animate-spin"></div>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <i class="fas fa-play text-[#c30059] text-xl"></i>
         </div>
-        <p class="text-sm text-yellow-300">
-          <strong>Don't close this website</strong> while payment is being processed. 
-          Your subscription will be activated automatically once payment is complete.
-        </p>
+      </div>
+      <div class="mt-6 text-center">
+        <div class="text-xl font-bold text-white mb-2">Processing Payment...</div>
+        <div class="w-64 h-1 bg-gray-700 rounded-full overflow-hidden">
+          <div class="h-full bg-gradient-to-r from-[#c30059] to-[#ff6b9d] animate-pulse"></div>
+        </div>
+        <div class="mt-4 p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg max-w-md">
+          <div class="flex items-center justify-center gap-2 mb-2">
+            <i class="fas fa-shield-alt text-amber-400"></i>
+            <span class="font-semibold text-amber-400">Secure Payment</span>
+          </div>
+          <p class="text-sm text-amber-300">
+            Please wait while we process your payment securely. Do not close this window.
+          </p>
+        </div>
       </div>
     </div>
 
-
-
-    <!-- Back Navigation -->
-    <div class="px-4 py-6 flex justify-between items-center">
-      <router-link to="/" class="flex items-center gap-2 text-white/80 hover:text-white">
-        <i class="fas fa-arrow-left"></i>
-        <span>Choose a Plan</span>
-      </router-link>
-    </div>
-
-    <!-- Plan Selector (if multiple plans) -->
-    <div v-if="plans.length > 1" class="flex justify-center mb-8">
-      <select v-model="selectedPlanId" @change="onPlanChange" class="bg-[#1d1d1d] border border-[#c30059]/40 text-white rounded-lg px-4 py-2">
-        <option v-for="plan in plans" :key="plan.id" :value="plan.id">{{ plan.name }}</option>
-      </select>
-    </div>
-
-    <!-- Single Centered Plan Card -->
-    <div class="max-w-md mx-auto mb-24 sm:mb-0">
-      <div class="bg-[#1d1d1d] rounded-2xl overflow-hidden border border-[#c30059]/20 hover:border-[#c30059]/40 transition-all">
-        <div class="p-6">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-12 h-12 rounded-full bg-gradient-to-r from-[#c30059] to-[#7c1d44] flex items-center justify-center">
-              <i class="fas fa-calendar-check text-2xl text-white"></i>
+    <!-- Hero Section -->
+    <div class="relative overflow-hidden">
+      <!-- Background Pattern -->
+      <div class="absolute inset-0 opacity-10">
+        <div class="absolute inset-0 bg-gradient-to-br from-[#c30059]/10 via-transparent to-[#ff6b9d]/10"></div>
+        <div class="absolute inset-0" style="background-image: radial-gradient(circle at 25% 25%, rgba(195, 0, 89, 0.1) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(255, 107, 157, 0.1) 0%, transparent 50%);"></div>
+      </div>
+      
+      <!-- Header -->
+      <div class="relative z-10 px-4 py-8">
+        <div class="max-w-7xl mx-auto">
+          <div class="flex items-center justify-between mb-8">
+            <router-link to="/" class="flex items-center gap-3 text-white/80 hover:text-white transition-colors group">
+              <div class="w-10 h-10 bg-gradient-to-r from-[#c30059] to-[#ff6b9d] rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
+                <i class="fas fa-arrow-left text-lg"></i>
+              </div>
+              <span class="font-medium">Back to Home</span>
+            </router-link>
+            
+            <div class="flex items-center gap-2 text-sm text-white/60">
+              <i class="fas fa-shield-check text-green-400"></i>
+              <span>Secure Payment</span>
             </div>
+          </div>
+          
+          <!-- Hero Content -->
+          <div class="text-center max-w-4xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-[#c30059]/10 border border-[#c30059]/20 rounded-full text-[#c30059] text-sm font-medium mb-6">
+              <i class="fas fa-crown"></i>
+              <span>Premium Plans Available</span>
+            </div>
+            
+            <h1 class="text-4xl md:text-6xl font-bold mb-1">
+              Choose Your
+              <span class="bg-gradient-to-r from-[#c30059] to-[#ff6b9d] bg-clip-text text-transparent">
+                Entertainment
+              </span>
+              <br>Plan
+            </h1>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Plans Section -->
+    <div class="relative px-4 py-1">
+      <div class="max-w-7xl mx-auto">
+        
+       
+        
+        <!-- Plans Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-16 max-w-6xl mx-auto place-items-center">
+          <!-- Loading State -->
+          <div v-if="isLoadingPlans" class="col-span-full w-full flex flex-col items-center py-16">
+            <div class="w-12 h-12 border-4 border-[#c30059]/30 border-t-[#c30059] rounded-full animate-spin"></div>
+            <p class="mt-4 text-white/70 text-sm">Loading plans...</p>
+          </div>
+          
+          <!-- No Plans Message -->
+          <div v-else-if="plans.length === 0" class="col-span-full text-center py-16">
+            <div class="bg-gradient-to-r from-[#1a1a1a] to-[#2a2a2a] rounded-2xl border border-white/10 p-8">
+              <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-[#c30059] to-[#ff6b9d] rounded-2xl flex items-center justify-center">
+                <i class="fas fa-exclamation-triangle text-white text-3xl"></i>
+              </div>
+              <h3 class="text-2xl font-bold text-white mb-3">No Plans Available</h3>
+              <p class="text-white/60 mb-4">Subscription plans are currently not available. Please try again later.</p>
+              <button @click="fetchPlans" class="px-6 py-3 bg-gradient-to-r from-[#c30059] to-[#ff6b9d] text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-[#c30059]/25 transition-all">
+                <i class="fas fa-refresh mr-2"></i>
+                Refresh Plans
+              </button>
+            </div>
+          </div>
+          
+          <!-- Plan Cards -->
+          <div 
+            v-for="plan in plans" 
+            :key="plan.id"
+            @click="selectPlan(plan)"
+            :class="[
+              'relative group cursor-pointer transition-all duration-300 transform hover:scale-105',
+              (selectedPlan && selectedPlan.id) === plan.id ? 'scale-105' : ''
+            ]"
+          >
+            <!-- Plan Card -->
+            <div :class="[
+              'relative bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a] rounded-2xl overflow-hidden border-2 transition-all duration-300 h-full',
+              (selectedPlan && selectedPlan.id) === plan.id 
+                ? 'border-[#c30059] shadow-2xl shadow-[#c30059]/20' 
+                : 'border-white/10 hover:border-[#c30059]/50 group-hover:shadow-xl'
+            ]">
+              <!-- Badge Section -->
+              <div class="p-4 pb-2">
+                <div v-if="plan.popular" class="inline-block">
+                  <div class="bg-[#c30059] text-white text-xs font-bold px-3 py-1 rounded-full">
+                    {{ plan.badge || 'RECOMMENDED' }}
+                  </div>
+                </div>
+                <div v-else-if="plan.badge" class="inline-block">
+                  <div class="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                    {{ plan.badge }}
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Selected Badge -->
+              <div v-if="(selectedPlan && selectedPlan.id) === plan.id" class="absolute top-4 right-4 z-10">
+                <div class="w-8 h-8 bg-[#c30059] rounded-full flex items-center justify-center">
+                  <i class="fas fa-check text-white text-sm"></i>
+                </div>
+              </div>
+              
+              <!-- Card Content -->
+              <div class="p-6 pt-2 flex flex-col h-full">
+                <!-- Logo/Brand Section -->
+                <div class="text-center mb-4">
+                  <div class="inline-flex items-center gap-2 mb-3">
+                    <div class="w-8 h-8 bg-gradient-to-r from-[#c30059] to-[#ff6b9d] rounded-lg flex items-center justify-center">
+                      <i class="fas fa-play text-white text-sm"></i>
+                    </div>
+                    <span class="text-[#c30059] font-bold text-lg">OTT</span>
+                    <span class="bg-gradient-to-r from-[#ffd700] to-[#ffed4e] bg-clip-text text-transparent font-bold text-lg">{{ plan.brand_text || 'GOLD' }}</span>
+                  </div>
+                </div>
+                
+                <!-- Plan Features -->
+                <div class="text-center mb-6">
+                  <div class="text-white font-semibold text-sm mb-2">
+                    {{ plan.features.join(' • ') }}
+                  </div>
+                  <div class="text-white/70 text-xs">
+                    {{ plan.description }}
+                  </div>
+                </div>
+                
+                <!-- Divider -->
+                <div class="border-t border-white/10 my-4"></div>
+                
+                <!-- Pricing Section -->
+                <div class="text-center mb-6 flex-grow">
+                  <div class="flex items-baseline justify-center gap-2 mb-2">
+                    <span class="text-2xl font-bold text-white">₹{{ plan.price }}</span>
+                    <span class="text-white/60 text-sm">/{{ plan.duration_text || 'month' }}</span>
+                  </div>
+                  <!-- Per-day dynamic text -->
+                  <div class="text-white/70 text-xs">
+                    Just ₹{{ getPerDay(plan) }} per day
+                  </div>
+                </div>
+                
+                <!-- Subscribe Button -->
+                <div class="mt-auto">
+                  <!-- Pay Online Button -->
+                  <button 
+                    @click.stop="handlePlanSubscription(plan)"
+                    :disabled="isProcessingPayment"
+                    :class="[
+                      'w-full py-3 px-4 rounded-xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2',
+                      'bg-gradient-to-r from-[#c30059] to-[#ff6b9d] text-white hover:shadow-lg hover:shadow-[#c30059]/25 disabled:opacity-50'
+                    ]"
+                  >
+                    <i class="fas fa-credit-card" v-if="!isProcessingPayment"></i>
+                    <i class="fas fa-spinner fa-spin" v-else></i>
+                    <span v-if="isProcessingPayment">Processing...</span>
+                    <span v-else>Pay Online</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+       <!-- Subscription Code Callout (outside cards) -->
+        <div class="mb-6">
+          <div class="flex flex-col md:flex-row items-center justify-between gap-3 bg-gradient-to-r from-[#1a1a1a] to-[#2a2a2a] border border-white/10 rounded-2xl p-4 max-w-4xl mx-auto">
+            <div class="flex items-center gap-3 text-white/80">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-[#c30059] to-[#ff6b9d] flex items-center justify-center">
+                <i class="fas fa-ticket-alt text-white"></i>
+              </div>
+              <div>
+                <div class="font-semibold text-white">Have a subscription code?</div>
+                <div class="text-sm text-white/60">Redeem it to activate your plan instantly</div>
+              </div>
+            </div>
+            <button 
+              @click="showCodeInput = true"
+              class="w-full md:w-auto px-5 py-2.5 rounded-xl font-semibold text-sm bg-gradient-to-r from-[#c30059] to-[#ff6b9d] text-white hover:shadow-lg hover:shadow-[#c30059]/25 transition-all"
+            >
+              Redeem Code
+            </button>
+          </div>
+        </div>
+        
+      <!-- Code Input Dialog -->
+      <div v-if="showCodeInput" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] rounded-3xl w-full max-w-md border border-white/10 overflow-hidden">
+          <!-- Header -->
+          <div class="bg-gradient-to-r from-[#c30059] to-[#ff6b9d] p-6">
+            <div class="flex justify-between items-center">
+              <div>
+                <h3 class="text-xl font-bold text-white">Subscription Code</h3>
+                <p class="text-white/80 text-sm">Enter your redemption code</p>
+              </div>
+              <button @click="showCodeInput = false" class="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Content -->
+          <div class="p-6 space-y-6">
             <div>
-              <h3 class="text-2xl font-bold">{{ selectedPlan?.name }}</h3>
-              <p class="text-sm text-white/60">{{ selectedPlan?.description }}</p>
+              <label class="block text-sm font-medium text-white/80 mb-3">Redemption Code</label>
+              <input 
+                v-model="subscriptionCode"
+                type="text"
+                class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl h-14 px-4 text-white text-lg font-mono tracking-wider focus:border-[#c30059] focus:outline-none focus:ring-2 focus:ring-[#c30059]/20 transition-all uppercase placeholder-white/40"
+                placeholder="ENTER-CODE-HERE"
+                @input="validateCode"
+              />
+              <p v-if="codeError" class="mt-3 text-sm text-red-400 flex items-center gap-2">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ codeError }}
+              </p>
             </div>
-          </div>
-          <!-- Price Section with Special Highlight -->
-          <div class="bg-[#c30059]/10 rounded-lg p-4 mb-6">
-            <div class="flex items-baseline gap-2">
-              <span class="text-3xl font-bold text-[#c30059]">₹{{ selectedPlan?.price }}</span>
-              <span class="text-sm text-[#c30059]">/{{ selectedPlan?.duration }} days</span>
-            </div>
-            <p class="text-sm text-white/60 mt-1">Just ₹{{ selectedPlan ? (selectedPlan.price / selectedPlan.duration).toFixed(2) : '0.00' }} per day</p>
-          </div>
-          <!-- Features List -->
-          <div class="space-y-4 mb-6">
-            <div class="flex items-start gap-3">
-              <i class="fas fa-tv text-[#c30059] mt-1"></i>
-              <div>
-                <p class="font-medium">Watch on 2 Devices</p>
-                <p class="text-sm text-white/60">Stream on TV & Mobile</p>
-              </div>
-            </div>
-            <div class="flex items-start gap-3">
-              <i class="fas fa-fire text-[#c30059] mt-1"></i>
-              <div>
-                <p class="font-medium">Trending Videos</p>
-                <p class="text-sm text-white/60">Latest & Popular Content</p>
-              </div>
-            </div>
-            <div class="flex items-start gap-3">
-              <i class="fas fa-star text-[#c30059] mt-1"></i>
-              <div>
-                <p class="font-medium">Popular Shows</p>
-                <p class="text-sm text-white/60">Binge-worthy Series</p>
-              </div>
-            </div>
-            <div class="flex items-start gap-3">
-              <i class="fas fa-film text-[#c30059] mt-1"></i>
-              <div>
-                <p class="font-medium">No.1 Originals</p>
-                <p class="text-sm text-white/60">Exclusive Content</p>
-              </div>
-            </div>
-          </div>
-          <!-- Payment Options Section -->
-          <div class="mt-6 border-t border-white/10 pt-6">
-            <h4 class="text-lg font-semibold mb-4">Select Payment Method</h4>
-            <div class="grid grid-cols-1 gap-4">
-              <button 
-                @click="handlePaymentGateway"
-                :disabled="isProcessingPayment"
-                class="bg-[#1a1a1a] p-4 rounded-lg border border-white/10 hover:border-[#c30059] transition-colors flex items-center justify-between group"
-              >
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-full bg-[#c30059]/10 flex items-center justify-center group-hover:bg-[#c30059]/20">
-                    <i class="fas fa-credit-card text-[#c30059]" v-if="!isProcessingPayment"></i>
-                    <i class="fas fa-spinner fa-spin text-[#c30059]" v-else></i>
-                  </div>
-                  <div class="text-left">
-                    <p class="font-medium">
-                      <span v-if="isProcessingPayment">Processing...</span>
-                      <span v-else>Pay Online</span>
-                    </p>
-                    <p class="text-sm text-white/60">Credit/Debit Card, UPI, Net Banking</p>
-                  </div>
-                </div>
-                <i class="fas fa-chevron-right text-white/40 group-hover:text-[#c30059]" v-if="!isProcessingPayment"></i>
-              </button>
-              <button 
-                @click="showCodeInput = true"
-                class="bg-[#1a1a1a] p-4 rounded-lg border border-white/10 hover:border-[#c30059] transition-colors flex items-center justify-between group"
-              >
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-full bg-[#c30059]/10 flex items-center justify-center group-hover:bg-[#c30059]/20">
-                    <i class="fas fa-ticket-alt text-[#c30059]"></i>
-                  </div>
-                  <div class="text-left">
-                    <p class="font-medium">Use Subscription Code</p>
-                    <p class="text-sm text-white/60">Redeem subscription code</p>
-                  </div>
-                </div>
-                <i class="fas fa-chevron-right text-white/40 group-hover:text-[#c30059]"></i>
-              </button>
-            </div>
-          </div>
-          <!-- Code Input Dialog -->
-          <div v-if="showCodeInput" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
-            <div class="bg-[#1d1d1d] rounded-xl w-full max-w-md p-6">
-              <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold">Enter Subscription Code</h3>
-                <button @click="showCodeInput = false" class="text-white/60 hover:text-white">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-              <div class="space-y-4">
-                <div>
-                  <label class="block text-sm text-white/60 mb-2">Subscription Code</label>
-                  <input 
-                    v-model="subscriptionCode"
-                    type="text"
-                    class="w-full bg-[#121212] border border-white/10 rounded-lg h-12 px-4 text-white focus:border-[#c30059] focus:outline-none transition-colors uppercase"
-                    placeholder="Enter your code here"
-                    @input="validateCode"
-                  />
-                  <p v-if="codeError" class="mt-2 text-sm text-red-500">{{ codeError }}</p>
-                </div>
-                <button 
-                  @click="handleCodeSubmit"
-                  :disabled="!isValidCode"
-                  class="w-full py-3 px-6 bg-gradient-to-r from-[#c30059] to-[#7c1d44] text-white font-bold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Activate Subscription
-                </button>
-              </div>
-            </div>
+            
+            <button 
+              @click="handleCodeSubmit"
+              :disabled="!isValidCode"
+              class="w-full py-4 px-6 bg-gradient-to-r from-[#c30059] to-[#ff6b9d] text-white font-bold rounded-xl hover:shadow-lg hover:shadow-[#c30059]/25 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
+            >
+              <span v-if="isValidCode">Activate Subscription</span>
+              <span v-else>Enter Valid Code</span>
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- FAQ Section (unchanged) -->
-    <div class="mt-16 mb-24 md:mb-8">
-      <h2 class="text-2xl font-bold mb-8 text-center">Frequently Asked Questions</h2>
-      <div class="max-w-3xl mx-auto space-y-4 pb-20 md:pb-0">
-        <div class="bg-[#1d1d1d] rounded-lg p-4">
-          <button class="flex items-center justify-between w-full text-left">
-            <span class="font-semibold">What payment methods do you accept?</span>
-            <i class="fas fa-chevron-down text-[#c30059]"></i>
-          </button>
+    <!-- Why Choose Us Section -->
+    <div class="bg-[#0a0a0a] py-16">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold mb-4">Why Choose Our Platform?</h2>
+          <p class="text-lg text-white/70">Experience entertainment like never before</p>
         </div>
-        <div class="bg-[#1d1d1d] rounded-lg p-4">
-          <button class="flex items-center justify-between w-full text-left">
-            <span class="font-semibold">Can I cancel my subscription anytime?</span>
-            <i class="fas fa-chevron-down text-[#c30059]"></i>
-          </button>
-        </div>
-        <div class="bg-[#1d1d1d] rounded-lg p-4">
-          <button class="flex items-center justify-between w-full text-left">
-            <span class="font-semibold">How many devices can I watch on simultaneously?</span>
-            <i class="fas fa-chevron-down text-[#c30059]"></i>
-          </button>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="text-center group">
+            <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-[#c30059] to-[#ff6b9d] rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <i class="fas fa-video text-3xl text-white"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Premium Content</h3>
+            <p class="text-white/60">Access thousands of movies, TV shows, and exclusive originals in HD quality</p>
+          </div>
+          
+          <div class="text-center group">
+            <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-[#c30059] to-[#ff6b9d] rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <i class="fas fa-mobile-alt text-3xl text-white"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Multi-Device Support</h3>
+            <p class="text-white/60">Watch on TV, laptop, tablet, or smartphone. Stream on up to 2 devices simultaneously</p>
+          </div>
+          
+          <div class="text-center group">
+            <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-[#c30059] to-[#ff6b9d] rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <i class="fas fa-download text-3xl text-white"></i>
+            </div>
+            <h3 class="text-xl font-bold mb-3">Offline Viewing</h3>
+            <p class="text-white/60">Download content and watch offline anywhere, anytime without internet connection</p>
+          </div>
         </div>
       </div>
     </div>
-    <!-- Mobile Fixed Bottom Bar -->
-    <div v-if="selectedPlan" class="fixed bottom-0 left-0 right-0 p-4 bg-[#121212]/95 backdrop-blur-md border-t border-white/10 md:hidden z-50 mb-[72px]">
-      <div class="flex items-center justify-between mb-2">
-        <div>
-          <p class="text-sm text-white/60">Selected Plan</p>
-          <p class="font-bold text-[#c30059]">{{ selectedPlan.name }}</p>
+
+    <!-- FAQ Section -->
+    <div class="py-16">
+      <div class="max-w-4xl mx-auto px-4">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold mb-4">Frequently Asked Questions</h2>
+          <p class="text-lg text-white/70">Everything you need to know about our subscription plans</p>
         </div>
-        <div class="text-right">
-          <p class="text-sm text-white/60">Total Amount</p>
-          <p class="font-bold text-[#c30059]">₹{{ selectedPlan.price }}</p>
+        
+        <div class="space-y-4">
+          <div class="bg-gradient-to-r from-[#1a1a1a] to-[#2a2a2a] rounded-2xl border border-white/10 overflow-hidden">
+            <button class="w-full p-6 text-left flex items-center justify-between hover:bg-white/5 transition-colors">
+              <div>
+                <h3 class="font-semibold text-lg mb-1">What payment methods do you accept?</h3>
+                <p class="text-white/60 text-sm">Learn about our secure payment options</p>
+              </div>
+              <i class="fas fa-chevron-down text-[#c30059] text-lg"></i>
+            </button>
+          </div>
+          
+          <div class="bg-gradient-to-r from-[#1a1a1a] to-[#2a2a2a] rounded-2xl border border-white/10 overflow-hidden">
+            <button class="w-full p-6 text-left flex items-center justify-between hover:bg-white/5 transition-colors">
+              <div>
+                <h3 class="font-semibold text-lg mb-1">Can I cancel my subscription anytime?</h3>
+                <p class="text-white/60 text-sm">Understand our flexible cancellation policy</p>
+              </div>
+              <i class="fas fa-chevron-down text-[#c30059] text-lg"></i>
+            </button>
+          </div>
+          
+          <div class="bg-gradient-to-r from-[#1a1a1a] to-[#2a2a2a] rounded-2xl border border-white/10 overflow-hidden">
+            <button class="w-full p-6 text-left flex items-center justify-between hover:bg-white/5 transition-colors">
+              <div>
+                <h3 class="font-semibold text-lg mb-1">How many devices can I watch on simultaneously?</h3>
+                <p class="text-white/60 text-sm">Details about multi-device streaming</p>
+              </div>
+              <i class="fas fa-chevron-down text-[#c30059] text-lg"></i>
+            </button>
+          </div>
+          
+          <div class="bg-gradient-to-r from-[#1a1a1a] to-[#2a2a2a] rounded-2xl border border-white/10 overflow-hidden">
+            <button class="w-full p-6 text-left flex items-center justify-between hover:bg-white/5 transition-colors">
+              <div>
+                <h3 class="font-semibold text-lg mb-1">Is there a free trial available?</h3>
+                <p class="text-white/60 text-sm">Information about trial periods and offers</p>
+              </div>
+              <i class="fas fa-chevron-down text-[#c30059] text-lg"></i>
+            </button>
+          </div>
         </div>
-      </div>
-      <div class="grid grid-cols-2 gap-2">
-        <button 
-          @click="handlePaymentGateway"
-          :disabled="isProcessingPayment"
-          class="py-3 px-4 bg-gradient-to-r from-[#c30059] to-[#7c1d44] text-white font-bold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-        >
-          <i class="fas fa-credit-card" v-if="!isProcessingPayment"></i>
-          <i class="fas fa-spinner fa-spin" v-else></i>
-          <span v-if="isProcessingPayment">Processing...</span>
-          <span v-else>Pay Online</span>
-        </button>
-        <button 
-          @click="showCodeInput = true"
-          class="py-3 px-4 bg-[#1a1a1a] text-white font-bold rounded-lg hover:bg-[#252525] transition-colors flex items-center justify-center gap-2 border border-white/10"
-        >
-          <i class="fas fa-ticket-alt"></i>
-          <span>Use Subscription Code</span>
-        </button>
       </div>
     </div>
+
   </div>
 </template>
 
 <script>
 import { useStore } from 'vuex';
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
@@ -240,25 +374,41 @@ export default {
 
     const plans = ref([]);
     const selectedPlan = ref(null);
-    const selectedPlanId = ref(null);
+    const isLoadingPlans = ref(true);
 
     // Use computed properties from store
     const isAuthenticated = computed(() => store.getters.isAuthenticated);
     const user = computed(() => store.getters.currentUser);
     const token = computed(() => store.getters.token);
 
+    // Function to select a plan
+    const selectPlan = (plan) => {
+      // If there is a cached order for a different plan, clear it
+      try {
+        const cached = localStorage.getItem('payment_order');
+        if (cached) {
+          const orderData = JSON.parse(cached);
+          if (orderData.plan_id && orderData.plan_id !== plan.id) {
+            localStorage.removeItem('payment_order');
+          }
+        }
+      } catch (e) {
+        localStorage.removeItem('payment_order');
+      }
+      selectedPlan.value = plan;
+    };
+
+    // Function to handle plan subscription
+    const handlePlanSubscription = (plan) => {
+      selectedPlan.value = plan;
+      handlePaymentGateway();
+    };
+
+    // Note: code redemption is now opened from the top callout
+
     // Fetch plans from backend on mount
     onMounted(async () => {
-      try {
-        const response = await axios.get('/users/api/subscription-plans/');
-        plans.value = response.data.plans;
-        if (plans.value.length > 0) {
-          selectedPlan.value = plans.value[0];
-          selectedPlanId.value = plans.value[0].id;
-        }
-      } catch (error) {
-        console.error('Failed to fetch plans:', error);
-      }
+      await fetchPlans();
       store.dispatch('initializeStore');
       
       // Check for plan in URL
@@ -268,7 +418,6 @@ export default {
         const plan = plans.value.find(p => p.id === planType);
         if (plan) {
           selectedPlan.value = plan;
-          selectedPlanId.value = plan.id;
         }
       }
       
@@ -276,22 +425,17 @@ export default {
       checkAndCleanExpiredOrders();
     });
 
-    // Watch for plan selector change
-    const onPlanChange = () => {
-      const plan = plans.value.find(p => p.id === selectedPlanId.value);
-      if (plan) {
-        selectedPlan.value = plan;
-      }
-    };
-
-    watch(selectedPlanId, onPlanChange);
-
     // Check for expired orders and clean up
-    const checkAndCleanExpiredOrders = () => {
+    const checkAndCleanExpiredOrders = (expectedPlanId = null) => {
       const paymentOrder = localStorage.getItem('payment_order');
       if (paymentOrder) {
         try {
           const orderData = JSON.parse(paymentOrder);
+          // If the cached order is for a different plan than currently selected, remove it
+          if (expectedPlanId && orderData.plan_id && orderData.plan_id !== expectedPlanId) {
+            localStorage.removeItem('payment_order');
+            return false;
+          }
           const orderTime = orderData.created_at;
           const currentTime = Date.now();
           const timeDiff = currentTime - orderTime;
@@ -462,7 +606,7 @@ export default {
         console.log('Creating order for plan:', selectedPlan.value);
         
         // Check for existing valid order
-        const hasValidOrder = checkAndCleanExpiredOrders();
+        const hasValidOrder = checkAndCleanExpiredOrders(selectedPlan.value.id);
         let orderData;
         
         if (hasValidOrder) {
@@ -788,7 +932,7 @@ export default {
         }
         
         // Call API to activate subscription
-        const response = await axios.post('/users/apply-coupon-subscription/', {
+        const response = await axios.post('/users/apply-coupon/', {
           code: subscriptionCode.value,
           phone: phone,
           plan_id: selectedPlan.value.id
@@ -842,12 +986,44 @@ export default {
       }
     };
 
+    const fetchPlans = async () => {
+      isLoadingPlans.value = true;
+      try {
+        const response = await axios.get('/users/api/subscription-plans/');
+        plans.value = response.data.plans || [];
+        if (plans.value.length > 0) {
+          const popularPlan = plans.value.find(p => p.popular) || plans.value[0];
+          selectedPlan.value = popularPlan;
+        }
+      } catch (error) {
+        console.error('Failed to fetch plans:', error);
+        plans.value = [];
+        store.dispatch('showToast', {
+          message: 'Failed to refresh plans. Please try again later.',
+          type: 'error'
+        });
+      } finally {
+        isLoadingPlans.value = false;
+      }
+    };
+
+    const formatNumber = (num) => {
+      if (!isFinite(num)) return '0';
+      const rounded = Math.round((num + Number.EPSILON) * 100) / 100;
+      return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2);
+    };
+
+    const getPerDay = (plan) => {
+      if (plan && plan.per_day_text) return plan.per_day_text.replace(/^\s*₹?\s*/, '');
+      if (!plan || !plan.price || !plan.duration) return '0';
+      const perDay = Number(plan.price) / Number(plan.duration);
+      return formatNumber(perDay);
+    };
 
 
     return {
       plans,
       selectedPlan,
-      selectedPlanId,
       showCodeInput,
       subscriptionCode,
       codeError,
@@ -856,8 +1032,12 @@ export default {
       handlePaymentGateway,
       validateCode,
       handleCodeSubmit,
-      onPlanChange,
-      checkAndCleanExpiredOrders // Expose order cleanup method
+      selectPlan,
+      handlePlanSubscription,
+      checkAndCleanExpiredOrders, // Expose order cleanup method
+      fetchPlans, // Expose fetchPlans function
+      isLoadingPlans,
+      getPerDay
     };
   }
 }
@@ -872,9 +1052,19 @@ export default {
 }
 
 /* Add these responsive styles */
+@media screen and (max-width: 1200px) {
+  .lg\:grid-cols-4 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media screen and (max-width: 1024px) {
   .max-w-7xl {
     max-width: 100%;
+  }
+  
+  .lg\:grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -886,6 +1076,12 @@ export default {
   .px-4 {
     padding-left: 1rem;
     padding-right: 1rem;
+  }
+
+  /* Force single column on mobile */
+  .md\:grid-cols-2,
+  .lg\:grid-cols-4 {
+    grid-template-columns: 1fr;
   }
 
   /* Add padding for mobile nav */
@@ -920,6 +1116,11 @@ export default {
   /* Add bottom padding to account for fixed button */
   .pb-24 {
     padding-bottom: 6rem;
+  }
+  
+  /* Scale down cards on mobile */
+  .scale-105 {
+    transform: scale(1.02);
   }
 }
 </style>

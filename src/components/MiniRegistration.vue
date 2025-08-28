@@ -65,7 +65,7 @@
         <!-- Referral Code (Optional) -->
         <div>
           <label class="block text-white/90 text-sm mb-2">
-            Referral Code or Phone <span class="text-gray-400">(Optional)</span>
+            Referral Phone Number<span class="text-gray-400">(Optional)</span>
           </label>
           <div class="flex gap-2">
             <input
@@ -74,7 +74,7 @@
               type="text"
               class="w-full bg-[#1d1d1d] border border-white/10 rounded-lg h-12 px-4 text-white focus:border-[#c30059] focus:outline-none transition-colors uppercase"
               :class="{'border-[#ff4d4d]': errors.referralCode, 'border-green-500': autoFilledReferral}"
-              placeholder="Enter referral code or phone number"
+              placeholder="Enter Referral phone number"
               autocomplete="off"
             />
             <button

@@ -23,6 +23,9 @@ import PrivacyPolicy from '../views/PrivacyPolicy.vue'
 import TermsOfService from '../views/TermsOfService.vue'
 import CookiePolicy from '../views/CookiePolicy.vue'
 import PaymentVerification from '../views/PaymentVerification.vue'
+import TestVideoTracking from '../views/TestVideoTracking.vue'
+import TestVideoPlayer from '../views/TestVideoPlayer.vue'
+import DeviceActivation from '../views/DeviceActivation.vue'
 
 const routes = [
   {
@@ -46,6 +49,11 @@ const routes = [
     name: 'SubscriptionPlans',
     component: SubscriptionPlans,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/activate',
+    name: 'DeviceActivation',
+    component: DeviceActivation
   },
   {
     path: '/player',
@@ -188,6 +196,18 @@ const routes = [
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('../views/NotFound.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/test-video-tracking',
+    name: 'TestVideoTracking',
+    component: TestVideoTracking,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/test-video-player',
+    name: 'TestVideoPlayer',
+    component: TestVideoPlayer,
     meta: { requiresAuth: true }
   }
 ]

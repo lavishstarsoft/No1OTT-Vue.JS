@@ -342,9 +342,9 @@ export default {
 
         // Force navigation to home page or redirect path
         if (redirectPath && redirectPath !== '/mini-register') {
-          window.location.href = `https://no1ott.com${redirectPath}`
+          window.location.href = `https://ott.no1news.in${redirectPath}`
         } else {
-          window.location.href = 'https://no1ott.com/'
+          window.location.href = 'https://ott.no1news.in/'
         }
 
       } catch (error) {

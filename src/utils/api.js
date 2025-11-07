@@ -7,6 +7,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // This is important for CSRF protection
 });
 
 // Add a request interceptor
@@ -18,9 +19,9 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
-    // Add CSRF token for POST/PUT/DELETE requests
+    // Add CSRF token for all requests when available
     const csrfToken = localStorage.getItem('csrfToken');
-    if (csrfToken && ['post', 'put', 'delete', 'patch'].includes(config.method?.toLowerCase())) {
+    if (csrfToken) {
       config.headers['X-CSRFToken'] = csrfToken;
     }
     
@@ -60,4 +61,4 @@ export const watchlistAPI = {
   getList: () => api.get('/api/watchlist/'),
 };
 
-export default api; 
+export default api;

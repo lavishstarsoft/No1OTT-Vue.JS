@@ -147,6 +147,7 @@
         :is-live="currentStream.isLive"
         :drm-config="currentStream.drmConfig"
         :autoplay="true"
+        :video-id="currentStream.videoId"
         @close="playerVisible = false"
       />
     </div>
@@ -220,9 +221,9 @@ export default {
       }
     },
 
-    openPlayer(type, url, title, isLive = false, drmConfig = null) {
+    openPlayer(type, url, title, isLive = false, drmConfig = null, videoId = null) {
       // Set video ID for ads (you might want to get this from your actual video data)
-      this.currentVideoId = 1; // Replace with actual video ID
+      this.currentVideoId = videoId || 1; // Replace with actual video ID
       this.currentAdType = 'pre_roll';
       
       // Show ads first
@@ -234,7 +235,8 @@ export default {
         title,
         type,
         isLive,
-        drmConfig
+        drmConfig,
+        videoId
       };
     },
 

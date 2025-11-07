@@ -154,6 +154,7 @@
 <script>
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
+import { trackVideoView, trackVideoCompletion } from '@/utils/videoTracking';
 
 export default {
   name: 'AdvancedVideoPlayer',
@@ -179,7 +180,10 @@ export default {
       type: Boolean,
       default: true
     },
-
+    videoId: {
+      type: [String, Number],
+      default: null
+    }
   },
   emits: ['close'],
   // Add navigation guard to detect route leaving
@@ -226,7 +230,11 @@ export default {
       lastPlayTime: 0, // Track last play time for continuity
       pauseRecoveryAttempts: 0, // Track recovery attempts
       wasPlayingBeforeSeek: false, // Track if video was playing before seeking
-      originalBodyStyles: {} // Store original body styles
+      originalBodyStyles: {}, // Store original body styles
+      hasTrackedView: false, // Track if we've already tracked the view
+      hasTrackedCompletion: false, // Track if we've already tracked completion
+      startTime: null, // Track when playback started
+      totalWatchTime: 0 // Track total watch time
     }
   },
   computed: {
@@ -775,6 +783,13 @@ export default {
       // Add page unload listener to stop audio
       window.addEventListener('beforeunload', this.handlePageUnload);
       window.addEventListener('pagehide', this.handlePageUnload);
+
+      // Add event listeners for view tracking
+      this.player.on('play', this.handlePlay);
+      this.player.on('pause', this.handlePause);
+      this.player.on('ended', this.handleEnded);
+      this.player.on('timeupdate', this.handleTimeUpdate);
+      
     },
 
     handlePageUnload() {
@@ -942,6 +957,64 @@ export default {
         this.bufferedPercent = (this.buffered / this.duration) * 100;
       }
     },
+
+    handlePlay() {
+      this.isPlaying = true;
+      // Record start time
+      this.startTime = Date.now();
+      
+      // Track view when video starts playing for the first time
+      if (this.videoId && !this.hasTrackedView) {
+        trackVideoView(this.videoId);
+        this.hasTrackedView = true;
+      }
+      
+      // Hide loading indicator when video starts playing
+      this.isLoading = false;
+      
+      // Start controls hide timer when video starts playing
+      this.showControlsTemporarily();
+    },
+
+    handlePause() {
+      this.isPlaying = false;
+      // Calculate watch time when paused
+      if (this.startTime) {
+        this.totalWatchTime += (Date.now() - this.startTime) / 1000; // Convert to seconds
+        this.startTime = null;
+      }
+    },
+
+    handleEnded() {
+      this.isPlaying = false;
+      // Calculate final watch time
+      if (this.startTime) {
+        this.totalWatchTime += (Date.now() - this.startTime) / 1000; // Convert to seconds
+        this.startTime = null;
+      }
+      
+      // Track completion
+      if (this.videoId && !this.hasTrackedCompletion) {
+        trackVideoCompletion(this.videoId);
+        this.hasTrackedCompletion = true;
+      }
+    },
+
+    handleTimeUpdate() {
+      if (this.player) {
+        this.currentTime = this.player.currentTime();
+        this.duration = this.player.duration();
+        this.buffered = this.player.bufferedEnd();
+        
+        // Update progress bar
+        if (this.duration > 0) {
+          this.playedPercent = (this.currentTime / this.duration) * 100;
+          this.bufferedPercent = (this.buffered / this.duration) * 100;
+        }
+      }
+    },
+
+
 
     onProgressChange(event) {
       if (!this.player || typeof this.player.currentTime !== 'function') {

@@ -139,7 +139,7 @@ export default {
       referredUsers: [],
       showCopySuccess: false,
       baseUrl: 'https://ott.no1news.in',
-      websiteUrl: 'https://no1ott.com',
+      websiteUrl: 'https://ott.no1news.in',
       pollingInterval: null,
       isCountUpdating: false
     }

@@ -76,6 +76,11 @@
           <!-- Video Info -->
           <div class="px-1">
             <h3 class="text-sm font-medium mb-0.5 line-clamp-2">{{ video.title }}</h3>
+            <!-- View count -->
+            <div class="text-xs text-gray-400 flex items-center">
+              <i class="fas fa-eye mr-1 text-xs"></i>
+              {{ formatViews(video.views_count) }} views
+            </div>
           </div>
         </div>
       </div>
@@ -97,6 +102,7 @@
 import axios from 'axios'
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { formatViewCount } from '@/utils/videoTracking'
 
 export default {
   name: 'CategoryVideos',
@@ -187,12 +193,7 @@ export default {
     }
 
     const formatViews = (views) => {
-      if (views >= 1000000) {
-        return `${(views / 1000000).toFixed(1)}M`
-      } else if (views >= 1000) {
-        return `${(views / 1000).toFixed(1)}K`
-      }
-      return views.toString()
+      return formatViewCount(views);
     }
 
     onMounted(() => {

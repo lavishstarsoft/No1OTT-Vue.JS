@@ -34,7 +34,7 @@
           <div class="text-sm text-gray-300">
             <p class="mb-2">Having trouble? We're here to help you!</p>
             <p class="mb-4">Contact our support team:</p>
-            <a href="mailto:support@https://no1ott.com" class="block text-white hover:text-blue-400 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-300 text-center font-semibold rounded-lg py-2.5 px-6 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+            <a href="mailto:support@https://ott.no1news.in" class="block text-white hover:text-blue-400 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-300 text-center font-semibold rounded-lg py-2.5 px-6 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
               <div class="flex items-center justify-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />

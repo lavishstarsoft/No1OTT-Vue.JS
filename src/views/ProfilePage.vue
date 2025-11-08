@@ -74,6 +74,16 @@
           <div class="bg-white/5 rounded-xl p-6">
             <h2 class="text-xl font-semibold mb-4">Account Settings</h2>
             <div class="space-y-3">
+              <router-link 
+                to="/activate"
+                class="w-full py-3 px-4 bg-gradient-to-r from-[#c30059] to-[#ff4d4d] hover:from-[#d10065] hover:to-[#ff5c5c] rounded-lg text-left flex items-center justify-between transition-all group"
+              >
+                <div class="flex items-center gap-3">
+                  <i class="fas fa-tv text-white"></i>
+                  <span class="text-white font-medium">Activate TV Device</span>
+                </div>
+                <i class="fas fa-arrow-right text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all"></i>
+              </router-link>
               <button class="w-full py-3 px-4 bg-white/5 hover:bg-white/10 rounded-lg text-left flex items-center justify-between">
                 <span>Language</span>
                 <span class="text-white/60">English</span>

@@ -120,6 +120,7 @@ export default {
         { name: 'Home', path: '/' },
         { name: 'About', path: '/about' },
         { name: 'Regional Content', path: '/regional' },
+        { name: 'Activate TV', path: '/activate' },
         { name: 'News', path: '/news' },
         { name: 'Contact', path: '/contact' }
       ],

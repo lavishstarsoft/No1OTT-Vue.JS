@@ -52,6 +52,19 @@
           <span class="text-lg">My List</span>
         </a>
 
+        <!-- Activate TV -->
+        <router-link 
+          v-if="user" 
+          to="/activate" 
+          class="flex items-center gap-4 text-white/80 hover:text-white group"
+          @click="close"
+        >
+          <div class="w-8 h-8 flex items-center justify-center text-[#ff4d4d]">
+            <i class="fas fa-tv text-xl"></i>
+          </div>
+          <span class="text-lg">Activate TV</span>
+        </router-link>
+
         <!-- Referral -->
         <router-link 
           v-if="user" 

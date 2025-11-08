@@ -19,6 +19,7 @@
     "date-fns": "^4.1.0",
     "express": "^5.1.0",
     "hls.js": "^1.6.2",
+    "html5-qrcode": "^2.3.8",
     "pinia": "^3.0.2",
     "react-player": "^2.16.0",
     "serve-static": "^2.2.0",

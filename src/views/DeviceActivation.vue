@@ -29,14 +29,25 @@
           <div class="space-y-6">
             <div>
               <label class="block text-sm font-medium text-white/80 mb-3">Activation Code</label>
-              <input 
-                v-model="activationCode"
-                type="text"
-                class="w-full bg-[#0a0a0a] border border-white/10 rounded-xl h-14 px-4 text-white text-lg font-mono tracking-wider focus:border-[#c30059] focus:outline-none focus:ring-2 focus:ring-[#c30059]/20 transition-all uppercase placeholder-white/40 text-center"
-                placeholder="ENTER CODE"
-                maxlength="8"
-                @input="formatCode"
-              />
+              <div class="flex gap-3 items-stretch">
+                <input 
+                  v-model="activationCode"
+                  type="text"
+                  class="flex-1 bg-[#0a0a0a] border border-white/10 rounded-xl h-14 px-4 text-white text-lg font-mono tracking-wider focus:border-[#c30059] focus:outline-none focus:ring-2 focus:ring-[#c30059]/20 transition-all uppercase placeholder-white/40 text-center min-w-0"
+                  placeholder="ENTER CODE"
+                  maxlength="8"
+                  @input="formatCode"
+                />
+                <button
+                  @click="openQRScanner"
+                  type="button"
+                  class="h-14 px-4 sm:px-6 bg-gradient-to-r from-[#c30059] to-[#ff6b9d] text-white font-medium rounded-xl hover:shadow-lg hover:shadow-[#c30059]/25 transition-all duration-300 flex items-center justify-center gap-2 min-w-[60px] sm:min-w-[120px] flex-shrink-0"
+                  title="Scan QR Code"
+                >
+                  <i class="fas fa-qrcode text-lg sm:text-xl"></i>
+                  <span class="hidden sm:inline whitespace-nowrap">Scan QR</span>
+                </button>
+              </div>
             </div>
 
             <!-- User Info (if logged in) -->
@@ -142,14 +153,82 @@
         </div>
       </div>
     </div>
+
+    <!-- QR Scanner Modal -->
+    <div v-if="showQRScanner" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+      <div class="bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] rounded-3xl border border-white/10 p-6 max-w-md w-full">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xl font-bold text-white">Scan QR Code</h3>
+          <button
+            @click="closeQRScanner"
+            class="text-white/60 hover:text-white transition-colors"
+          >
+            <i class="fas fa-times text-2xl"></i>
+          </button>
+        </div>
+        
+        <div class="mb-4 relative">
+          <div id="qr-reader" class="w-full rounded-xl overflow-hidden bg-black/50" style="min-height: 300px;"></div>
+          <div v-if="!isScanning && !qrScannerError" class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-xl pointer-events-none">
+            <div class="text-center">
+              <i class="fas fa-spinner fa-spin text-white text-3xl mb-2"></i>
+              <p class="text-white text-sm">Initializing camera...</p>
+            </div>
+          </div>
+        </div>
+        
+        <div v-if="qrScannerError" class="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+          <div class="flex items-start gap-3">
+            <i class="fas fa-exclamation-triangle text-red-400 mt-0.5"></i>
+            <div class="flex-1">
+              <p class="text-red-400 text-sm font-medium mb-2">{{ qrScannerError }}</p>
+              <div class="text-red-300 text-xs space-y-1">
+                <p><strong>Tips:</strong></p>
+                <ul class="list-disc list-inside space-y-1 ml-2">
+                  <li>Make sure you've allowed camera permissions in your browser</li>
+                  <li>Close other apps that might be using the camera</li>
+                  <li>Try refreshing the page and scanning again</li>
+                  <li>On mobile: Check Settings → Privacy → Camera permissions</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex gap-3">
+          <button
+            @click="closeQRScanner"
+            class="flex-1 py-3 px-4 bg-white/10 text-white font-medium rounded-xl hover:bg-white/20 transition-all"
+          >
+            Cancel
+          </button>
+          <button
+            @click="stopQRScanner"
+            v-if="isScanning"
+            class="flex-1 py-3 px-4 bg-red-500/20 text-red-400 font-medium rounded-xl hover:bg-red-500/30 transition-all"
+          >
+            Stop Scanner
+          </button>
+          <button
+            @click="openQRScanner"
+            v-if="qrScannerError && !isScanning"
+            class="flex-1 py-3 px-4 bg-gradient-to-r from-[#c30059] to-[#ff4d4d] text-white font-medium rounded-xl hover:opacity-90 transition-all"
+          >
+            <i class="fas fa-redo mr-2"></i>
+            Try Again
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import { useStore } from 'vuex';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { Html5Qrcode } from 'html5-qrcode';
 
 export default {
   name: 'DeviceActivation',
@@ -161,6 +240,10 @@ export default {
     const isActivating = ref(false);
     const errorMessage = ref('');
     const successMessage = ref('');
+    const showQRScanner = ref(false);
+    const isScanning = ref(false);
+    const qrScannerError = ref('');
+    let html5QrCode = null;
     
     // Computed properties from store
     const isAuthenticated = computed(() => store.getters.isAuthenticated);
@@ -173,6 +256,296 @@ export default {
         .toUpperCase()
         .replace(/[^A-Z0-9]/g, '')
         .slice(0, 8);
+    };
+    
+    // Extract activation code from QR code URL or text
+    const extractCodeFromQR = (qrData) => {
+      try {
+        // Check if it's a URL with code parameter
+        const url = new URL(qrData);
+        const code = url.searchParams.get('code');
+        if (code) {
+          return code.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+        }
+      } catch (e) {
+        // Not a URL, might be direct code
+      }
+      
+      // Try to extract 8-character code from the string
+      const codeMatch = qrData.match(/[A-Z0-9]{8}/);
+      if (codeMatch) {
+        return codeMatch[0];
+      }
+      
+      // Return the string itself if it's 8 characters
+      const cleaned = qrData.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if (cleaned.length === 8) {
+        return cleaned;
+      }
+      
+      return null;
+    };
+    
+    // Check camera permissions
+    const checkCameraPermissions = async () => {
+      try {
+        // Check if getUserMedia is available
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('Camera API not supported in this browser');
+        }
+        
+        // Try to access camera to request permission
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: 'environment' } 
+        });
+        
+        // Stop the stream immediately - we just needed permission
+        stream.getTracks().forEach(track => track.stop());
+        
+        return true;
+      } catch (error) {
+        console.error('Camera permission error:', error);
+        throw error;
+      }
+    };
+    
+    // Open QR Scanner
+    const openQRScanner = async () => {
+      // Clean up any existing scanner first
+      if (html5QrCode) {
+        try {
+          await stopQRScanner();
+        } catch (e) {
+          console.log('Error cleaning up before restart:', e);
+        }
+      }
+      
+      try {
+        showQRScanner.value = true;
+        qrScannerError.value = '';
+        isScanning.value = false;
+        
+        // Check HTTPS
+        if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+          qrScannerError.value = 'Camera requires HTTPS connection. Please use https:// or localhost.';
+          return;
+        }
+        
+        // Wait for DOM to update and element to be available
+        await nextTick();
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Check if element exists
+        const qrReaderElement = document.getElementById("qr-reader");
+        if (!qrReaderElement) {
+          throw new Error('QR reader element not found');
+        }
+        
+        // Request camera permissions first
+        try {
+          await checkCameraPermissions();
+        } catch (permError) {
+          if (permError.name === 'NotAllowedError' || permError.name === 'PermissionDeniedError') {
+            qrScannerError.value = 'Camera permission denied. Please allow camera access in your browser settings and try again.';
+            return;
+          } else if (permError.name === 'NotFoundError' || permError.name === 'DevicesNotFoundError') {
+            qrScannerError.value = 'No camera found on your device. Please connect a camera and try again.';
+            return;
+          } else if (permError.name === 'NotReadableError' || permError.name === 'TrackStartError') {
+            qrScannerError.value = 'Camera is being used by another application. Please close other apps using the camera and try again.';
+            return;
+          }
+          throw permError;
+        }
+        
+        const qrCodeSuccessCallback = (decodedText) => {
+          console.log('QR Code scanned:', decodedText);
+          
+          const extractedCode = extractCodeFromQR(decodedText);
+          if (extractedCode && extractedCode.length === 8) {
+            activationCode.value = extractedCode;
+            formatCode();
+            stopQRScanner();
+            showQRScanner.value = false;
+            
+            // Show success message
+            store.dispatch('showToast', {
+              message: 'QR Code scanned successfully!',
+              type: 'success'
+            });
+          } else {
+            qrScannerError.value = 'Invalid QR code. Please scan a valid activation code QR.';
+          }
+        };
+        
+        const qrCodeErrorCallback = (errorMessage) => {
+          // Ignore continuous scanning errors
+          if (errorMessage && (
+            errorMessage.includes('NotFoundException') || 
+            errorMessage.includes('No MultiFormat Readers')
+          )) {
+            return;
+          }
+          console.log('QR Code error:', errorMessage);
+        };
+        
+        // Stop any existing scanner first
+        if (html5QrCode) {
+          try {
+            await html5QrCode.stop();
+            await html5QrCode.clear();
+          } catch (e) {
+            console.log('Error stopping existing scanner:', e);
+          }
+        }
+        
+        html5QrCode = new Html5Qrcode("qr-reader");
+        
+        // Try to get available cameras first
+        let cameras = [];
+        try {
+          cameras = await Html5Qrcode.getCameras();
+          console.log('Available cameras:', cameras);
+        } catch (camError) {
+          console.warn('Could not get camera list:', camError);
+          // Continue with facingMode fallback
+        }
+        
+        let cameraId = null;
+        if (cameras && cameras.length > 0) {
+          // Prefer back camera (environment)
+          const backCamera = cameras.find(cam => 
+            cam.label.toLowerCase().includes('back') || 
+            cam.label.toLowerCase().includes('rear') ||
+            cam.label.toLowerCase().includes('environment')
+          );
+          cameraId = backCamera ? backCamera.id : cameras[0].id;
+          console.log('Using camera:', cameraId);
+        }
+        
+        // Start scanning with multiple fallback options
+        const config = {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+          aspectRatio: 1.0,
+          disableFlip: false
+        };
+        
+        let started = false;
+        
+        // Try 1: Use specific camera ID if available
+        if (cameraId && !started) {
+          try {
+            await html5QrCode.start(
+              cameraId,
+              config,
+              qrCodeSuccessCallback,
+              qrCodeErrorCallback
+            );
+            started = true;
+          } catch (err) {
+            console.warn('Failed to start with camera ID, trying fallback:', err);
+          }
+        }
+        
+        // Try 2: Use environment facing mode
+        if (!started) {
+          try {
+            await html5QrCode.start(
+              { facingMode: "environment" },
+              config,
+              qrCodeSuccessCallback,
+              qrCodeErrorCallback
+            );
+            started = true;
+          } catch (err) {
+            console.warn('Failed to start with environment mode, trying user mode:', err);
+          }
+        }
+        
+        // Try 3: Use user facing mode (front camera)
+        if (!started) {
+          try {
+            await html5QrCode.start(
+              { facingMode: "user" },
+              config,
+              qrCodeSuccessCallback,
+              qrCodeErrorCallback
+            );
+            started = true;
+          } catch (err) {
+            console.warn('Failed to start with user mode:', err);
+          }
+        }
+        
+        // Try 4: Use any available camera (first one)
+        if (!started && cameras && cameras.length > 0) {
+          try {
+            await html5QrCode.start(
+              cameras[0].id,
+              config,
+              qrCodeSuccessCallback,
+              qrCodeErrorCallback
+            );
+            started = true;
+          } catch (err) {
+            console.error('Failed to start with any camera:', err);
+          }
+        }
+        
+        if (!started) {
+          throw new Error('Unable to access camera. Please check permissions and try again.');
+        }
+        
+        isScanning.value = true;
+        qrScannerError.value = '';
+      } catch (error) {
+        console.error('QR Scanner error:', error);
+        let errorMsg = 'Failed to start camera. ';
+        
+        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+          errorMsg = 'Camera permission denied. Please allow camera access in your browser settings.';
+        } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+          errorMsg = 'No camera found on your device.';
+        } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+          errorMsg = 'Camera is being used by another application. Please close other apps and try again.';
+        } else if (error.message) {
+          errorMsg += error.message;
+        } else {
+          errorMsg += 'Please check camera permissions and try again.';
+        }
+        
+        qrScannerError.value = errorMsg;
+        isScanning.value = false;
+        // Don't close modal on error, let user see the error message
+      }
+    };
+    
+    // Stop QR Scanner
+    const stopQRScanner = async () => {
+      if (html5QrCode) {
+        try {
+          if (isScanning.value) {
+            await html5QrCode.stop();
+          }
+          await html5QrCode.clear();
+        } catch (error) {
+          // Ignore errors when stopping - scanner might already be stopped
+          console.log('Error stopping QR scanner (may already be stopped):', error);
+        } finally {
+          html5QrCode = null;
+          isScanning.value = false;
+        }
+      } else {
+        isScanning.value = false;
+      }
+    };
+    
+    // Close QR Scanner
+    const closeQRScanner = async () => {
+      await stopQRScanner();
+      showQRScanner.value = false;
+      qrScannerError.value = '';
     };
     
     // Activate device
@@ -238,6 +611,11 @@ export default {
       }
     });
     
+    // Cleanup on unmount
+    onUnmounted(async () => {
+      await stopQRScanner();
+    });
+    
     return {
       activationCode,
       isActivating,
@@ -245,13 +623,68 @@ export default {
       successMessage,
       isAuthenticated,
       user,
+      showQRScanner,
+      isScanning,
+      qrScannerError,
       formatCode,
-      activateDevice
+      activateDevice,
+      openQRScanner,
+      stopQRScanner,
+      closeQRScanner
     };
   }
 };
 </script>
 
 <style scoped>
-/* Add any component-specific styles here */
+/* QR Scanner Styles */
+#qr-reader {
+  min-height: 300px;
+  width: 100%;
+  position: relative;
+}
+
+#qr-reader__dashboard_section {
+  display: none !important;
+}
+
+#qr-reader__camera_selection {
+  display: none !important;
+}
+
+/* Override html5-qrcode styles for better appearance */
+#qr-reader__scan_region {
+  border: 2px solid #c30059 !important;
+  border-radius: 12px !important;
+}
+
+#qr-reader__scan_region video {
+  border-radius: 12px !important;
+  width: 100% !important;
+  height: auto !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  #qr-reader {
+    min-height: 250px;
+  }
+}
+</style>
+
+<style>
+/* Global styles for QR scanner (not scoped) */
+#qr-reader {
+  width: 100% !important;
+}
+
+#qr-reader__scan_region {
+  width: 100% !important;
+}
+
+#qr-reader__scan_region video {
+  width: 100% !important;
+  height: auto !important;
+  object-fit: cover !important;
+}
 </style>

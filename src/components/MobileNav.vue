@@ -19,10 +19,10 @@
         <span class="text-xs">Search</span>
       </router-link>
 
-      <!-- News -->
-      <router-link to="/news" class="nav-link" active-class="active">
-        <i class="fas fa-newspaper text-xl"></i>
-        <span class="text-xs">News</span>
+      <!-- Activate TV -->
+      <router-link to="/activate" class="nav-link" active-class="active">
+        <i class="fas fa-tv text-xl"></i>
+        <span class="text-xs">Activate</span>
       </router-link>
 
       <!-- Profile/Menu -->

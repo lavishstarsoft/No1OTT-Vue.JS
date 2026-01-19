@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="video-wrapper" 
        @click="handleVideoClick" 
        @touchstart="handleTouchStart" 
@@ -7,7 +7,6 @@
        :class="{ 'mobile-view': isMobile }">
   <div class="video-container">
       <video ref="videoElement" class="video-js vjs-big-play-centered vjs-theme-ott" :poster="poster" preload="auto" playsinline webkit-playsinline crossorigin="anonymous" data-setup='{}'>
-      <source :src="src" type="application/x-mpegURL" />
         <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that supports HTML5 video</p>
     </video>
 
@@ -80,7 +79,9 @@
         <!-- Bottom Controls -->
         <div class="bottom-controls">
           <div class="progress-container">
-            <div class="progress-bar" @click="onProgressBarClick" 
+            <div class="progress-bar" 
+                 @click="onProgressBarClick" 
+                 @mousedown="handleProgressBarMouseDown"
                  @touchstart="handleProgressBarTouchStart" 
                  @touchmove="handleProgressBarTouchMove" 
                  @touchend="handleProgressBarTouchEnd">
@@ -154,6 +155,8 @@
 <script>
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
+import shaka from 'shaka-player/dist/shaka-player.ui.js';
+import 'shaka-player/dist/controls.css';
 import { trackVideoView, trackVideoCompletion } from '@/utils/videoTracking';
 
 export default {
@@ -195,6 +198,8 @@ export default {
   data() {
     return {
       player: null,
+      shakaPlayer: null,
+      playerType: null, // 'videojs' or 'shaka'
       isPlaying: false,
       currentTime: 0,
       duration: 0,
@@ -374,8 +379,16 @@ export default {
         document.addEventListener('mozfullscreenchange', this.handleFullscreenChange);
         document.addEventListener('MSFullscreenChange', this.handleFullscreenChange);
         
-        // Add play state listener
-        this.player.on('play', this.handleFirstPlay);
+        // Add play state listener - check player type
+        if (this.playerType === 'videojs' && this.player) {
+          this.player.on('play', this.handleFirstPlay);
+        } else if (this.playerType === 'shaka') {
+          // For Shaka Player, use video element events
+          const videoElement = this.$refs.videoElement;
+          if (videoElement) {
+            videoElement.addEventListener('play', this.handleFirstPlay);
+          }
+        }
       }
     },
 
@@ -386,7 +399,14 @@ export default {
         await this.checkAndRotate();
       }
       // Remove listener after first play
-      this.player.off('play', this.handleFirstPlay);
+      if (this.playerType === 'videojs' && this.player) {
+        this.player.off('play', this.handleFirstPlay);
+      } else if (this.playerType === 'shaka') {
+        const videoElement = this.$refs.videoElement;
+        if (videoElement) {
+          videoElement.removeEventListener('play', this.handleFirstPlay);
+        }
+      }
     },
 
     async checkAndRotate() {
@@ -586,6 +606,143 @@ export default {
       document.addEventListener('mozfullscreenchange', this.handleFullscreenChange);
       document.addEventListener('MSFullscreenChange', this.handleFullscreenChange);
       
+      // Detect format based on file extension
+      const isMPD = this.src.toLowerCase().includes('.mpd');
+      
+      if (isMPD) {
+        // Use Shaka Player for MPD/DASH
+        this.initializeShakaPlayer(videoElement);
+      } else {
+        // Use Video.js for HLS and other formats
+        this.initializeVideoJsPlayer(videoElement);
+      }
+    },
+
+    initializeShakaPlayer(videoElement) {
+      console.log('🎬 Initializing Shaka Player for MPD');
+      this.playerType = 'shaka';
+      
+      // Install Shaka polyfills
+      shaka.polyfill.installAll();
+      
+      // Check browser support
+      if (!shaka.Player.isBrowserSupported()) {
+        console.error('Browser not supported for Shaka Player');
+        return;
+      }
+      
+      // Create Shaka player - NEW WAY (v4.15+)
+      this.shakaPlayer = new shaka.Player();
+      
+      // Attach to video element
+      this.shakaPlayer.attach(videoElement);
+      
+      // Configure Shaka player
+      this.shakaPlayer.configure({
+        streaming: {
+          bufferingGoal: 60,
+          rebufferingGoal: 2,
+          bufferBehind: 30
+        },
+        abr: {
+          enabled: true
+        }
+      });
+      
+      // Error handling
+      this.shakaPlayer.addEventListener('error', (event) => {
+        const error = event.detail;
+        console.error('Shaka Player error:', error);
+        
+        // Check for CORS errors
+        if (error.code === shaka.util.Error.Code.BAD_HTTP_STATUS || 
+            error.code === shaka.util.Error.Code.HTTP_ERROR) {
+          console.error('🚨 CORS Error: S3 bucket needs CORS configuration');
+          console.error('Add this CORS policy to your S3 bucket:');
+          console.error(JSON.stringify({
+            "AllowedOrigins": ["*"],
+            "AllowedMethods": ["GET", "HEAD"],
+            "AllowedHeaders": ["*"],
+            "ExposeHeaders": ["Content-Length", "Content-Range"],
+            "MaxAgeSeconds": 3000
+          }, null, 2));
+        }
+        
+        this.handleVideoError(error);
+      });
+      
+      // Load the manifest
+      this.shakaPlayer.load(this.src).then(() => {
+        console.log('🎬 MPD manifest loaded successfully');
+        this.isLoading = false;
+        
+        // Setup event listeners
+        this.setupShakaEventListeners(videoElement);
+        
+        if (this.autoplay) {
+          videoElement.play().catch(err => console.log('Autoplay prevented:', err));
+        }
+      }).catch((error) => {
+        console.error('Error loading MPD:', error);
+        
+        // Provide helpful error messages
+        if (error.code === shaka.util.Error.Code.BAD_HTTP_STATUS) {
+          console.error('🚨 HTTP Error - Check CORS configuration on S3 bucket');
+        } else if (error.code === shaka.util.Error.Code.HTTP_ERROR) {
+          console.error('🚨 Network Error - CORS policy blocking request');
+        }
+        
+        this.isLoading = false;
+      });
+    },
+
+    setupShakaEventListeners(videoElement) {
+      // Time update
+      videoElement.addEventListener('timeupdate', () => {
+        this.currentTime = videoElement.currentTime;
+        this.playedPercent = (this.currentTime / this.duration) * 100;
+      });
+      
+      // Duration
+      videoElement.addEventListener('loadedmetadata', () => {
+        this.duration = videoElement.duration;
+        console.log('🎬 Video duration:', this.duration);
+      });
+      
+      // Play/Pause
+      videoElement.addEventListener('play', () => {
+        this.isPlaying = true;
+        this.handlePlay();
+      });
+      
+      videoElement.addEventListener('pause', () => {
+        this.isPlaying = false;
+        this.handlePause();
+      });
+      
+      videoElement.addEventListener('ended', () => {
+        this.isPlaying = false;
+        this.handleEnded();
+      });
+      
+      // Loading states
+      videoElement.addEventListener('waiting', () => {
+        this.isLoading = true;
+      });
+      
+      videoElement.addEventListener('playing', () => {
+        this.isLoading = false;
+      });
+      
+      videoElement.addEventListener('canplay', () => {
+        this.isLoading = false;
+      });
+    },
+
+    initializeVideoJsPlayer(videoElement) {
+      console.log('🎬 Initializing Video.js for HLS');
+      this.playerType = 'videojs';
+      
       this.player = videojs(videoElement, {
         controls: false, // We'll use custom controls
         autoplay: this.autoplay,
@@ -597,30 +754,27 @@ export default {
             smoothQualityChange: true,
             overrideNative: true,
             handlePartialData: true,
-            // Add better buffering settings for continuous playback
             maxBufferLength: 60,
             maxMaxBufferLength: 120,
-            maxBufferSize: 120 * 1000 * 1000, // 120MB for better buffering
-            maxBufferHole: 0.1, // Smaller buffer holes for smoother playback
+            maxBufferSize: 120 * 1000 * 1000,
+            maxBufferHole: 0.1,
             lowLatencyMode: false,
             backBufferLength: 60,
-            // Add continuous playback settings
             limitRenditionByPlayerDimensions: false
           },
           vhs: {
             limitRenditionByPlayerDimensions: false,
             smoothQualityChange: true,
-            maxPlaylistRetries: 10, // More retries for better reliability
+            maxPlaylistRetries: 10,
             bufferSize: 60,
             enableLowInitialPlaylist: true,
             allowSeeksWithinUnsafeLiveWindow: true,
             handlePartialData: true,
             overrideNative: true,
-            // Add better buffering settings for continuous playback
             maxBufferLength: 60,
             maxMaxBufferLength: 120,
-            maxBufferSize: 120 * 1000 * 1000, // 120MB for better buffering
-            maxBufferHole: 0.1, // Smaller buffer holes for smoother playback
+            maxBufferSize: 120 * 1000 * 1000,
+            maxBufferHole: 0.1,
             lowLatencyMode: false,
             backBufferLength: 60
           },
@@ -628,26 +782,23 @@ export default {
           nativeAudioTracks: false,
           nativeVideoTracks: false
         },
-        // Add performance options for continuous playback
         techOrder: ['html5'],
         playbackRates: [0.5, 1, 1.5, 2],
         responsive: true,
         aspectRatio: '16:9',
-        // Add playback optimization for continuous streaming
         liveui: true,
         inactivityTimeout: 0,
         suppressNotSupportedError: true,
-        // Add mobile-specific settings
         playsinline: true,
         'webkit-playsinline': true,
-        // Add better error recovery
         errorDisplay: false,
-        // Add autoplay settings for mobile
-        muted: this.isMobile, // Start muted only on mobile to allow autoplay
+        muted: this.isMobile,
         volume: 0.5,
-        // Add continuous playback settings
         poster: this.poster
       });
+
+      // Set source
+      this.player.src({ src: this.src, type: 'application/x-mpegURL' });
 
       // Add loading event listeners
       this.player.on('loadstart', () => {
@@ -662,12 +813,10 @@ export default {
 
       this.player.on('waiting', () => {
         console.log('🎬 Video waiting event fired')
-        // Show loading if waiting for more than 500ms
         this.loadingTimeout = setTimeout(() => {
           this.isLoading = true;
         }, 500);
         
-        // Ensure playback continues after buffering
         if (this.continuousPlayback && !this.userPaused) {
           setTimeout(() => {
             if (this.player && !this.isPlaying && !this.userPaused) {
@@ -685,23 +834,18 @@ export default {
         if (this.loadingTimeout) {
           clearTimeout(this.loadingTimeout);
         }
-        // Unmute after playback starts
         if (this.player.muted()) {
           this.player.muted(false);
         }
-        
-        // Start controls hide timer when video is actually playing
         this.showControlsTemporarily();
       });
 
       this.player.on('error', (error) => {
         console.log('🎬 Video error event fired:', error)
         this.isLoading = false;
-        // Try to recover from error
         this.handleVideoError(error);
       });
 
-      // Add more event listeners for better control
       this.player.on('canplay', () => {
         console.log('🎬 Video canplay event fired')
         this.isLoading = false;
@@ -714,7 +858,6 @@ export default {
 
       this.player.on('stalled', () => {
         console.log('🎬 Video stalled event fired')
-        // Only try to resume if we're supposed to be playing
         if (this.isPlaying && !this.userPaused) {
           setTimeout(() => {
             if (this.player && this.isPlaying && !this.userPaused) {
@@ -722,7 +865,7 @@ export default {
                 console.log('Failed to resume after stall:', err);
               });
             }
-          }, 2000); // Longer delay for stall recovery
+          }, 2000);
         }
       });
 
@@ -740,12 +883,8 @@ export default {
       this.player.on('play', () => {
         console.log('🎬 Video play event fired')
         this.isPlaying = true;
-        this.pauseRecoveryAttempts = 0; // Reset recovery attempts on successful play
-        
-        // Hide loading indicator when video starts playing
+        this.pauseRecoveryAttempts = 0;
         this.isLoading = false;
-        
-        // Start controls hide timer when video starts playing
         this.showControlsTemporarily();
       });
       this.player.on('pause', () => {
@@ -753,7 +892,6 @@ export default {
         this.isPlaying = false;
         this.lastPlayTime = this.player.currentTime();
         
-        // Only auto-resume if it's not user-initiated and continuous playback is enabled
         if (!this.userPaused && this.continuousPlayback) {
           this.ensureContinuousPlayback();
         }
@@ -765,7 +903,6 @@ export default {
       this.player.on('loadedmetadata', () => {
         this.duration = this.player.duration();
         console.log('🎬 Video duration:', this.duration)
-        // Get available qualities
         if (this.player.tech().hls) {
           const qualities = this.player.tech().hls.representations();
           if (qualities.length > 0) {
@@ -774,13 +911,13 @@ export default {
         }
       });
 
-      // Add visibility change listener to handle tab switching
+      // Add visibility change listener
       document.addEventListener('visibilitychange', this.handleVisibilityChange);
       
       // Add network recovery listener
       window.addEventListener('online', this.handleNetworkRecovery);
       
-      // Add page unload listener to stop audio
+      // Add page unload listener
       window.addEventListener('beforeunload', this.handlePageUnload);
       window.addEventListener('pagehide', this.handlePageUnload);
 
@@ -920,21 +1057,30 @@ export default {
     },
 
     togglePlay() {
-      if (!this.player || typeof this.player.paused !== 'function') {
-        return;
-      }
-      if (this.isPlaying) {
-        this.userPaused = true;
-        this.pauseRecoveryAttempts = 0; // Reset recovery attempts on user pause
-        this.player.pause();
-      } else {
-        this.userPaused = false;
-        this.pauseRecoveryAttempts = 0; // Reset recovery attempts on user play
-        
-        // Handle mobile audio unmuting when play is pressed
-        this.handleMobileAudioInteraction();
-        
-        this.player.play();
+      const videoElement = this.$refs.videoElement;
+      
+      if (this.playerType === 'shaka') {
+        // Handle Shaka Player
+        if (this.isPlaying) {
+          this.userPaused = true;
+          videoElement.pause();
+        } else {
+          this.userPaused = false;
+          this.handleMobileAudioInteraction();
+          videoElement.play();
+        }
+      } else if (this.player && typeof this.player.paused === 'function') {
+        // Handle Video.js
+        if (this.isPlaying) {
+          this.userPaused = true;
+          this.pauseRecoveryAttempts = 0;
+          this.player.pause();
+        } else {
+          this.userPaused = false;
+          this.pauseRecoveryAttempts = 0;
+          this.handleMobileAudioInteraction();
+          this.player.play();
+        }
       }
       this.showControls = true;
       this.showControlsTemporarily();
@@ -1016,15 +1162,48 @@ export default {
 
 
 
-    onProgressChange(event) {
-      if (!this.player || typeof this.player.currentTime !== 'function') {
-        return;
-      }
-      const time = parseFloat(event.target.value);
-      this.player.currentTime(time);
-      this.isSeeking = true;
+
+
+    onProgressBarClick(event) {
+      // Only handle click if not dragging (to avoid conflicts with drag events)
+      if (this.isDragging) return;
       
-      // Show loading indicator while seeking
+      // Calculate click position on progress bar
+      const progressBar = event.currentTarget;
+      const rect = progressBar.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const progressBarWidth = rect.width;
+      const seekPercent = (clickX / progressBarWidth);
+      const seekTime = seekPercent * this.duration;
+      
+      const videoElement = this.$refs.videoElement;
+      
+      if (this.playerType === 'shaka' && videoElement) {
+        // For Shaka Player, use video element directly
+        videoElement.currentTime = Math.max(0, Math.min(seekTime, this.duration));
+      } else if (this.player && typeof this.player.currentTime === 'function') {
+        // For Video.js
+        this.player.currentTime(Math.max(0, Math.min(seekTime, this.duration)));
+      }
+      
+      this.isSeeking = true;
+      this.isLoading = true;
+      this.showControlsTemporarily();
+    },
+
+    onProgressChange(event) {
+      const time = parseFloat(event.target.value);
+      const videoElement = this.$refs.videoElement;
+      
+      if (this.playerType === 'shaka' && videoElement) {
+        // For Shaka Player, use video element directly
+        videoElement.currentTime = time;
+      } else if (this.player && typeof this.player.currentTime === 'function') {
+        // For Video.js
+        this.player.currentTime(time);
+      }
+      
+      this.isSeeking = true;
       this.isLoading = true;
     },
 
@@ -1044,23 +1223,35 @@ export default {
     },
 
     skipForward() {
-      if (!this.player || typeof this.player.currentTime !== 'function') {
-        return;
-      }
-      this.player.currentTime(this.currentTime + 10);
+      const videoElement = this.$refs.videoElement;
+      const newTime = this.currentTime + 10;
       
-      // Show loading indicator while seeking
+      if (this.playerType === 'shaka' && videoElement) {
+        // For Shaka Player, use video element directly
+        videoElement.currentTime = Math.min(newTime, this.duration);
+      } else if (this.player && typeof this.player.currentTime === 'function') {
+        // For Video.js
+        this.player.currentTime(newTime);
+      }
+      
       this.isLoading = true;
+      this.showControlsTemporarily();
     },
 
     skipBackward() {
-      if (!this.player || typeof this.player.currentTime !== 'function') {
-        return;
-      }
-      this.player.currentTime(this.currentTime - 10);
+      const videoElement = this.$refs.videoElement;
+      const newTime = this.currentTime - 10;
       
-      // Show loading indicator while seeking
+      if (this.playerType === 'shaka' && videoElement) {
+        // For Shaka Player, use video element directly
+        videoElement.currentTime = Math.max(newTime, 0);
+      } else if (this.player && typeof this.player.currentTime === 'function') {
+        // For Video.js
+        this.player.currentTime(newTime);
+      }
+      
       this.isLoading = true;
+      this.showControlsTemporarily();
     },
 
     formatTime(seconds) {
@@ -1124,27 +1315,16 @@ export default {
       window.removeEventListener('beforeunload', this.handlePageUnload);
       window.removeEventListener('pagehide', this.handlePageUnload);
       
+      // Remove mouse drag listeners (in case they're still attached)
+      document.removeEventListener('mousemove', this.handleProgressBarMouseMove);
+      document.removeEventListener('mouseup', this.handleProgressBarMouseUp);
+      
         console.log('🎬 All event listeners removed');
       } catch (error) {
         console.error('🎬 Error removing event listeners:', error);
       }
     },
 
-    onProgressBarClick(event) {
-      if (!this.player || typeof this.player.currentTime !== 'function' || typeof this.player.duration !== 'function') {
-        return;
-      }
-      if (!this.isDragging) {
-        const progressBar = event.currentTarget;
-        const clickX = event.clientX - progressBar.getBoundingClientRect().left;
-        const progressBarWidth = progressBar.offsetWidth;
-        const seekTime = (clickX / progressBarWidth) * this.duration;
-        this.player.currentTime(seekTime);
-        
-        // Show loading indicator while seeking
-        this.isLoading = true;
-      }
-    },
 
     onQualityChange() {
       if (!this.player || !this.player.tech().hls) return;
@@ -1678,6 +1858,108 @@ export default {
       }
     },
 
+    // Mouse drag handlers for smooth seeking (YouTube-like)
+    handleProgressBarMouseDown(event) {
+      event.preventDefault();
+      this.isDragging = true;
+      this.showControls = true;
+      
+      const videoElement = this.$refs.videoElement;
+      
+      // Pause video while seeking
+      if (this.playerType === 'shaka' && videoElement && !videoElement.paused) {
+        videoElement.pause();
+        this.wasPlayingBeforeSeek = true;
+      } else if (this.player && this.isPlaying) {
+        this.player.pause();
+        this.wasPlayingBeforeSeek = true;
+      }
+      
+      // Seek to clicked position immediately
+      this.updateProgressFromMouse(event);
+      
+      // Add global mouse move and up listeners
+      document.addEventListener('mousemove', this.handleProgressBarMouseMove);
+      document.addEventListener('mouseup', this.handleProgressBarMouseUp);
+      
+      this.isLoading = true;
+    },
+
+    handleProgressBarMouseMove(event) {
+      if (!this.isDragging) return;
+      
+      event.preventDefault();
+      this.updateProgressFromMouse(event);
+    },
+
+    handleProgressBarMouseUp(event) {
+      if (!this.isDragging) return;
+      
+      event.preventDefault();
+      this.isDragging = false;
+      
+      const videoElement = this.$refs.videoElement;
+      
+      // Resume video if it was playing before
+      if (this.wasPlayingBeforeSeek) {
+        if (this.playerType === 'shaka' && videoElement) {
+          videoElement.play().catch(err => {
+            console.log('Failed to resume after seek:', err);
+          });
+        } else if (this.player) {
+          this.player.play().catch(err => {
+            console.log('Failed to resume after seek:', err);
+          });
+        }
+        this.wasPlayingBeforeSeek = false;
+      }
+      
+      // Remove global listeners
+      document.removeEventListener('mousemove', this.handleProgressBarMouseMove);
+      document.removeEventListener('mouseup', this.handleProgressBarMouseUp);
+      
+      // Hide loading after a delay
+      setTimeout(() => {
+        if (this.playerType === 'shaka' && videoElement && videoElement.readyState >= 2) {
+          this.isLoading = false;
+        } else if (this.player && this.player.readyState() >= 2) {
+          this.isLoading = false;
+        }
+      }, 300);
+      
+      this.isSeeking = false;
+    },
+
+    updateProgressFromMouse(event) {
+      // Find the progress bar element
+      const progressBar = this.$el.querySelector('.progress-bar');
+      if (!progressBar) return;
+      
+      const rect = progressBar.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const progressBarWidth = rect.width;
+      
+      // Clamp to progress bar bounds
+      const clampedX = Math.max(0, Math.min(clickX, progressBarWidth));
+      const seekPercent = clampedX / progressBarWidth;
+      const seekTime = seekPercent * this.duration;
+      
+      const videoElement = this.$refs.videoElement;
+      const newTime = Math.max(0, Math.min(seekTime, this.duration));
+      
+      // Update video time
+      if (this.playerType === 'shaka' && videoElement) {
+        videoElement.currentTime = newTime;
+      } else if (this.player && typeof this.player.currentTime === 'function') {
+        this.player.currentTime(newTime);
+      }
+      
+      // Update UI immediately
+      this.currentTime = newTime;
+      this.playedPercent = (newTime / this.duration) * 100;
+      this.isSeeking = true;
+    },
+
     handleProgressBarTouchStart(event) {
       event.preventDefault();
       this.isDragging = true;
@@ -1700,7 +1982,11 @@ export default {
       }
       
       // Pause video while seeking for better performance
-      if (this.player && this.isPlaying) {
+      const videoElement = this.$refs.videoElement;
+      if (this.playerType === 'shaka' && videoElement && !videoElement.paused) {
+        videoElement.pause();
+        this.wasPlayingBeforeSeek = true;
+      } else if (this.player && this.isPlaying) {
         this.player.pause();
         this.wasPlayingBeforeSeek = true;
       }
@@ -1734,21 +2020,25 @@ export default {
       const seekPercent = (clampedX / progressBarWidth);
       const seekTime = seekPercent * this.duration;
       
-      // Update video time with throttling for smooth performance
-      if (this.player && typeof this.player.currentTime === 'function') {
-        const newTime = Math.max(0, Math.min(seekTime, this.duration));
-        
-        // Only update if the time difference is significant to avoid excessive updates
-        if (Math.abs(newTime - this.currentTime) > 0.5) {
+      const videoElement = this.$refs.videoElement;
+      const newTime = Math.max(0, Math.min(seekTime, this.duration));
+      
+      // Only update if the time difference is significant to avoid excessive updates
+      if (Math.abs(newTime - this.currentTime) > 0.5) {
+        if (this.playerType === 'shaka' && videoElement) {
+          // For Shaka Player, use video element directly
+          videoElement.currentTime = newTime;
+        } else if (this.player && typeof this.player.currentTime === 'function') {
+          // For Video.js
           this.player.currentTime(newTime);
-          
-          // Update UI immediately for responsive feel
-          this.currentTime = newTime;
-          this.playedPercent = (newTime / this.duration) * 100;
-          
-          // Show loading indicator while seeking
-          this.isLoading = true;
         }
+        
+        // Update UI immediately for responsive feel
+        this.currentTime = newTime;
+        this.playedPercent = (newTime / this.duration) * 100;
+        
+        // Show loading indicator while seeking
+        this.isLoading = true;
       }
       
       this.isSeeking = true;
@@ -1762,25 +2052,34 @@ export default {
       const progressBar = event.currentTarget;
       progressBar.classList.remove('progress-bar-active');
       
+      const videoElement = this.$refs.videoElement;
+      
       // Resume video if it was playing before
-      if (this.wasPlayingBeforeSeek && this.player) {
-        this.player.play().catch(err => {
-          console.log('Failed to resume after seek:', err);
-        });
+      if (this.wasPlayingBeforeSeek) {
+        if (this.playerType === 'shaka' && videoElement) {
+          videoElement.play().catch(err => {
+            console.log('Failed to resume after seek:', err);
+          });
+        } else if (this.player) {
+          this.player.play().catch(err => {
+            console.log('Failed to resume after seek:', err);
+          });
+        }
         this.wasPlayingBeforeSeek = false;
       }
       
       // Handle tap (quick touch without much movement)
       if (!this.touchMoved && touchDuration < 200) {
         // Calculate position for tap
-        const progressBar = event.currentTarget;
         const rect = progressBar.getBoundingClientRect();
         const clickX = event.changedTouches[0].clientX - rect.left;
         const progressBarWidth = rect.width;
         const seekPercent = (clickX / progressBarWidth);
         const seekTime = seekPercent * this.duration;
         
-        if (this.player && typeof this.player.currentTime === 'function') {
+        if (this.playerType === 'shaka' && videoElement) {
+          videoElement.currentTime = Math.max(0, Math.min(seekTime, this.duration));
+        } else if (this.player && typeof this.player.currentTime === 'function') {
           this.player.currentTime(Math.max(0, Math.min(seekTime, this.duration)));
         }
         
@@ -1797,7 +2096,9 @@ export default {
       
       // Hide loading indicator after a short delay if video is ready
       setTimeout(() => {
-        if (this.player && this.player.readyState() >= 2) {
+        if (this.playerType === 'shaka' && videoElement && videoElement.readyState >= 2) {
+          this.isLoading = false;
+        } else if (this.player && this.player.readyState() >= 2) {
           this.isLoading = false;
         }
       }, 500);

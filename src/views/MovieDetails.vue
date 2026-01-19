@@ -58,7 +58,6 @@
             v-show="isPromoPlaying && !isPromoLoading"
             style="width: 100vw; max-width: 100vw; aspect-ratio: 16/9; object-fit: contain; background: #000; display: block; margin: 0 auto; max-height: 70vh;"
           >
-            <source :src="movie.promo_hls_url" type="application/x-mpegURL" />
           </video>
         </div>
         <div class="backdrop-gradient"></div>
@@ -709,6 +708,7 @@ export default {
       copyStatus: 'Copy',
       promoHasError: false,
       videojsPlayer: null,
+      shakaPromoPlayer: null,
       isPromoPlaying: false
     }
   },
@@ -787,8 +787,9 @@ export default {
     shouldShowPromoButton() {
       return this.movie && 
              this.movie.promo_hls_url && 
-             this.movie.promo_hls_url.trim() !== '' && 
-             !this.promoHasError;
+             this.movie.promo_hls_url.trim() !== '';
+      // Removed promoHasError check - button should show even if CORS error
+      // User can still try to play after fixing CORS
     }
   },
   watch: {
@@ -933,16 +934,119 @@ export default {
         return;
       }
       const videoSrc = this.movie.promo_hls_url || this.movie.video_url;
-      if (!videoSrc || !videoSrc.includes('.m3u8')) {
-        console.error('Invalid or missing HLS URL');
+      if (!videoSrc) {
+        console.error('No video source available');
         return;
       }
-      // Dispose previous player if exists
+
+      // Detect format
+      const isMPD = videoSrc.toLowerCase().includes('.mpd');
+      const isHLS = videoSrc.toLowerCase().includes('.m3u8');
+
+      if (!isMPD && !isHLS) {
+        console.error('Unsupported video format. Only HLS (.m3u8) and MPD (.mpd) are supported');
+        return;
+      }
+
+      // Dispose previous players if they exist
       if (this.videojsPlayer) {
         this.videojsPlayer.dispose();
+        this.videojsPlayer = null;
       }
+      if (this.shakaPromoPlayer) {
+        this.shakaPromoPlayer.destroy();
+        this.shakaPromoPlayer = null;
+      }
+
       // Ensure video is muted for autoplay
       video.muted = true;
+
+      if (isMPD) {
+        // Use Shaka Player for MPD
+        this.initializeShakaPromoPlayer(video, videoSrc);
+      } else {
+        // Use Video.js for HLS
+        this.initializeVideoJsPromoPlayer(video, videoSrc);
+      }
+    },
+
+    initializeShakaPromoPlayer(video, videoSrc) {
+      console.log('🎬 Initializing Shaka Player for promo MPD');
+      
+      // Import Shaka Player dynamically
+      import('shaka-player/dist/shaka-player.ui.js').then((shaka) => {
+        // Install polyfills
+        shaka.polyfill.installAll();
+        
+        // Check browser support
+        if (!shaka.Player.isBrowserSupported()) {
+          console.error('Browser not supported for Shaka Player');
+          this.promoHasError = true;
+          return;
+        }
+        
+        // Create Shaka player
+        this.shakaPromoPlayer = new shaka.Player();
+        this.shakaPromoPlayer.attach(video);
+        
+        // Configure
+        this.shakaPromoPlayer.configure({
+          streaming: {
+            bufferingGoal: 30,
+            rebufferingGoal: 2,
+            bufferBehind: 15
+          },
+          abr: {
+            enabled: true
+          }
+        });
+        
+        // Error handling
+        this.shakaPromoPlayer.addEventListener('error', (event) => {
+          const error = event.detail;
+          console.error('Shaka promo error:', error);
+          
+          // Don't hide button for CORS errors - user needs to fix S3 config
+          // Only hide for critical player errors
+          if (error.code !== shaka.util.Error.Code.BAD_HTTP_STATUS && 
+              error.code !== shaka.util.Error.Code.HTTP_ERROR) {
+            this.promoHasError = true;
+          }
+          
+          this.handlePromoVideoError(error);
+        });
+        
+        // Load manifest
+        this.shakaPromoPlayer.load(videoSrc).then(() => {
+          console.log('🎬 Promo MPD loaded successfully');
+          this.isPromoLoading = false;
+          
+          // Attempt autoplay
+          video.play().catch(err => {
+            console.log('Promo autoplay prevented:', err);
+            this.isPromoLoading = false;
+          });
+        }).catch((error) => {
+          console.error('Error loading promo MPD:', error);
+          
+          // Don't hide button for CORS errors
+          if (error.code !== shaka.util.Error.Code.BAD_HTTP_STATUS && 
+              error.code !== shaka.util.Error.Code.HTTP_ERROR) {
+            this.promoHasError = true;
+          }
+          
+          this.isPromoLoading = false;
+        });
+      }).catch((error) => {
+        console.error('Error importing Shaka Player:', error);
+        this.promoHasError = true;
+        this.isPromoLoading = false;
+      });
+    },
+
+    initializeVideoJsPromoPlayer(video, videoSrc) {
+      console.log('🎬 Initializing Video.js for promo HLS');
+      
       this.videojsPlayer = videojs(video, {
         sources: [{
           src: videoSrc,
@@ -1721,28 +1825,47 @@ export default {
     },
     async playPromo() {
       try {
+        console.log('playPromo() called - checking promo URL');
+        
+        // Check if we have a valid promo URL
         if (!this.movie.promo_hls_url) {
           throw new Error('No promo video URL available');
         }
+
+        // Set video URL and detect format
+        this.videoUrl = this.movie.promo_hls_url;
+        
+        // Auto-detect stream type based on URL
+        if (this.videoUrl.includes('.mpd')) {
+          this.streamType = 'dash';
+        } else if (this.videoUrl.includes('.m3u8')) {
+          this.streamType = 'hls';
+        } else {
+          this.streamType = 'hls'; // Default to HLS
+        }
+
+        console.log('Playing promo with URL:', this.videoUrl);
+        console.log('Stream type:', this.streamType);
+
+        // Use AdvancedVideoPlayer (same as full video)
         this.controlsVisible = true;
         this.isVideoPaused = false;
         this.isVideoPlaying = true;
         this.isPlayingPromo = true;
-        this.videoUrl = this.movie.promo_hls_url;
-        this.streamType = 'hls';
+        
+        // Hide body scroll
         document.body.style.overflow = 'hidden';
+        
         this.$nextTick(() => {
-          const video = this.$refs.heroVideo;
-          if (video) {
-            video.muted = true;
-            this.initVideoJsPlayer(video, this.movie.promo_hls_url);
+          if (this.$refs.videoPlayer) {
+            this.resetControlsTimer();
           } else {
+            console.error('Video player reference not found');
             throw new Error('Video player initialization failed');
           }
         });
       } catch (error) {
         console.error('Error playing promo video:', error);
-        this.promoHasError = true; // Hide promo button on error
         this.$store.dispatch('showToast', {
           message: 'Sorry, the promo video is not available at the moment. Please try again later.',
           type: 'error'

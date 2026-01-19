@@ -92,6 +92,11 @@
           <span>{{ formattedDuration }}</span>
           <span class="dot-divider"></span>
           <span>{{ categoryName }}</span>
+          <span class="dot-divider"></span>
+          <span class="flex items-center text-gray-300">
+            <i class="fas fa-eye mr-1.5 text-xs"></i>
+            {{ formatViews(movie.views_count) }}
+          </span>
           <!-- Rental price display for rental videos (only for free users) -->
           <template v-if="movie.video_type === 'rental' && movie.prices && movie.prices.length && !isUserSubscribed">
             <span class="dot-divider"></span>
@@ -522,6 +527,7 @@ import { watchlistAPI } from '@/utils/api'
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 import store from '@/store';
+import { formatViewCount } from '@/utils/videoTracking';
 
 // Define API base URL constant
 const API_BASE_URL = 'https://ott.no1news.in'
@@ -1439,12 +1445,16 @@ export default {
       
       meta.setAttribute('content', content);
     },
+    formatViews(views) {
+      return formatViewCount(views);
+    },
+    
     toggleSearch() {
       this.isSearchActive = !this.isSearchActive;
     },
     navigateToMovie(movieId) {
       // Use full page refresh to ensure all components reinitialize
-      window.location.href = `/movie/${movieId}`;
+      window.location.href = `/ott/${movieId}`;
     },
     navigateToCategory() {
       // Navigate to category page with category ID

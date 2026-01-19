@@ -15,27 +15,27 @@ export const trackVideoView = async (videoId, options = {}) => {
   try {
     // Check if we've already tracked this video in this session
     const trackedVideos = JSON.parse(sessionStorage.getItem(TRACKED_VIDEOS_KEY) || '{}');
-    
+
     // If we've already tracked this video and it was completed, don't track again
     if (trackedVideos[videoId] && trackedVideos[videoId].isCompleted) {
       console.log(`Video ${videoId} already tracked as completed, skipping`);
       return null;
     }
-    
+
     // Mark as tracked in sessionStorage
     trackedVideos[videoId] = {
       timestamp: Date.now(),
       isCompleted: options.isCompleted || false
     };
     sessionStorage.setItem(TRACKED_VIDEOS_KEY, JSON.stringify(trackedVideos));
-    
+
     // Send request to track video view
     const response = await api.post('/api/videos/track-view/', {
       video_id: videoId,
       watch_duration: options.watchDuration || 0,
       is_completed: options.isCompleted || false
     });
-    
+
     console.log(`Video view tracked for video ID: ${videoId}`, response.data);
     return response.data;
   } catch (error) {
@@ -52,6 +52,10 @@ export const trackVideoView = async (videoId, options = {}) => {
  * @returns {string} - Formatted view count
  */
 export const formatViewCount = (views) => {
+  if (views === undefined || views === null || isNaN(views)) {
+    return '0';
+  }
+
   if (views >= 1000000) {
     return `${(views / 1000000).toFixed(1)}M`;
   } else if (views >= 1000) {

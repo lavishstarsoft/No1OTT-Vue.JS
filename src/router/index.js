@@ -62,14 +62,14 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/movie/:id',
+    path: '/ott/:id',
     name: 'MovieDetails',
     component: MovieDetails,
     props: true,
     meta: { requiresAuth: true }
   },
   {
-    path: '/movie/:id/rent',
+    path: '/ott/:id/rent',
     name: 'RentalPayment',
     component: RentalPayment,
     props: true,
@@ -226,7 +226,7 @@ router.beforeEach((to, from, next) => {
   let user = null
   let token = localStorage.getItem('token')
   let phone = localStorage.getItem('phone')
-  
+
   // Safely parse user data
   try {
     const userData = localStorage.getItem('user')
@@ -244,12 +244,12 @@ router.beforeEach((to, from, next) => {
     next('/login')
     return
   }
-  
+
   // Update registration check to only verify required fields for mini registration
   const hasCompletedRegistration = user && user.first_name && user.address
-  
+
   // Debug log
-  console.log('Navigation:', { 
+  console.log('Navigation:', {
     from: from.path,
     to: to.path,
     isAuthenticated,
@@ -258,7 +258,7 @@ router.beforeEach((to, from, next) => {
     hasToken: !!token,
     hasPhone: !!phone
   })
-  
+
   // Allow access to login page always
   if (to.path === '/login') {
     if (isAuthenticated && token && phone && user) {
@@ -284,7 +284,7 @@ router.beforeEach((to, from, next) => {
       localStorage.removeItem('isAuthenticated')
       localStorage.removeItem('phone')
       store.dispatch('logout')
-      
+
       next({
         path: '/login',
         query: { redirect: to.fullPath }

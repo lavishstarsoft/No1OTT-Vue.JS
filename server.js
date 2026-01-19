@@ -190,7 +190,7 @@ app.get('/test', (req, res) => {
 })
 
 // Handle movie routes for social media crawlers
-app.get('/movie/:id', async (req, res) => {
+app.get('/ott/:id', async (req, res) => {
   const movieId = req.params.id
   const userAgent = req.headers['user-agent'] || ''
 
@@ -248,7 +248,7 @@ app.get('/movie/:id', async (req, res) => {
 
         // Convert image URL to absolute URL for social media platforms
         const absoluteImageUrl = makeAbsoluteUrl(imageUrl, req)
-        const absoluteShareUrl = `${req.protocol}://${req.get('host')}/movie/${movieId}`
+        const absoluteShareUrl = `${req.protocol}://${req.get('host')}/ott/${movieId}`
 
         console.log('Original image URL:', imageUrl)
         console.log('Absolute image URL:', absoluteImageUrl)

@@ -1333,8 +1333,8 @@ export default {
       // Prepare share data with image
       const shareData = {
         title: this.movie.title,
-        text: this.movie.description,
-        url: shareUrl
+        text: `${this.movie.description}\n\n${shareUrl}`
+        // url: shareUrl // Removed to prevent duplicate links in WhatsApp
       };
 
       // Add image to share data if available
@@ -1371,8 +1371,8 @@ export default {
     shareWithoutImage(shareUrl) {
       const shareData = {
         title: this.movie.title,
-        text: this.movie.description,
-        url: shareUrl
+        text: `${this.movie.description}\n\n${shareUrl}`
+        // url: shareUrl // Removed to prevent duplicate links
       };
 
       navigator.share(shareData)

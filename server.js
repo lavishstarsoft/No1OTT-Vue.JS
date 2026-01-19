@@ -210,7 +210,7 @@ app.get('/movie/:id', async (req, res) => {
 
   // For testing, treat ALL requests as social crawler requests
   // This will be removed in production
-  const forceCrawler = true // Always true for testing
+  const forceCrawler = false // Set to false for production to let normal users use the Vue app
 
   if (isSocialCrawler || forceCrawler) {
     console.log('Processing as social crawler request')

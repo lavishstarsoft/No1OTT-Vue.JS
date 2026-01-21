@@ -10,6 +10,17 @@ const app = express()
 // API base URL
 const API_BASE_URL = 'https://ott.no1news.in'
 
+// Serve .well-known files for Deep Links (Android App Links & iOS Universal Links)
+app.get('/.well-known/assetlinks.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json')
+  res.sendFile(path.join(__dirname, 'public/.well-known/assetlinks.json'))
+})
+
+app.get('/.well-known/apple-app-site-association', (req, res) => {
+  res.setHeader('Content-Type', 'application/json')
+  res.sendFile(path.join(__dirname, 'public/.well-known/apple-app-site-association'))
+})
+
 // Debug route to test server
 app.get('/debug', (req, res) => {
   res.json({

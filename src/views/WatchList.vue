@@ -97,7 +97,7 @@ export default {
       }
     },
     navigateToVideo(videoId) {
-      this.$router.push(`/movie/${videoId}`);
+      this.$router.push(`/ott/${videoId}`);
     },
     getYear(dateString) {
       return dateString ? new Date(dateString).getFullYear() : '';

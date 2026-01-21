@@ -1160,7 +1160,7 @@ export default {
     },
     goToRentalPayment() {
       this.showRentalPopup = false;
-      this.$router.push(`/movie/${this.movie.id}/rent`);
+      this.$router.push(`/ott/${this.movie.id}/rent`);
     },
     async playMovie() {
       try {
@@ -1217,7 +1217,7 @@ export default {
             } else {
               // No active rental, redirect to rental page
               console.log('No active rental - redirecting to rental page');
-              this.$router.push(`/movie/${this.movie.id}/rent`);
+              this.$router.push(`/ott/${this.movie.id}/rent`);
             }
           }
           return;
@@ -1240,6 +1240,9 @@ export default {
 
         // Free video or user is subscribed, proceed with playback
         console.log('Playing free/paid video');
+        console.log('🎬 Full video URL:', this.movie.hls_url);
+        console.log('🎬 URL extension check - Is MPD:', this.movie.hls_url?.toLowerCase().includes('.mpd'));
+        console.log('🎬 URL extension check - Is HLS:', this.movie.hls_url?.toLowerCase().includes('.m3u8'));
         this.controlsVisible = true;
         this.isVideoPaused = false;
         this.isVideoPlaying = true;
@@ -2080,7 +2083,7 @@ export default {
     
     // Test social media preview
     testSocialPreview() {
-      const testUrl = `${window.location.origin}/movie/${this.movie.id}?test=true`;
+      const testUrl = `${window.location.origin}/ott/${this.movie.id}?test=true`;
       console.log('Testing social preview with URL:', testUrl);
       
       // Open in new tab for testing

@@ -184,7 +184,7 @@ app.get('/test', (req, res) => {
       debug: '/debug',
       debugHtml: '/debug-html',
       debugMovie: '/debug-movie/:id',
-      movie: '/movie/:id'
+      movie: '/ott/:id'
     }
   })
 })

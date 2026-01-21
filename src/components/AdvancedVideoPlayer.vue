@@ -608,12 +608,20 @@ export default {
       
       // Detect format based on file extension
       const isMPD = this.src.toLowerCase().includes('.mpd');
+      const isHLS = this.src.toLowerCase().includes('.m3u8');
+      
+      console.log('🎬 AdvancedVideoPlayer - initializePlayer called');
+      console.log('🎬 Video Source URL:', this.src);
+      console.log('🎬 Is MPD format:', isMPD);
+      console.log('🎬 Is HLS format:', isHLS);
       
       if (isMPD) {
         // Use Shaka Player for MPD/DASH
+        console.log('🎬 Using Shaka Player for MPD/DASH');
         this.initializeShakaPlayer(videoElement);
       } else {
         // Use Video.js for HLS and other formats
+        console.log('🎬 Using Video.js for HLS/other formats');
         this.initializeVideoJsPlayer(videoElement);
       }
     },

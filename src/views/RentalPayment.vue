@@ -8,7 +8,7 @@
 
     <!-- Back Navigation -->
     <div class="px-4 py-6 flex justify-between items-center">
-      <router-link :to="'/movie/' + movieId" class="flex items-center gap-2 text-white/80 hover:text-white">
+      <router-link :to="'/ott/' + movieId" class="flex items-center gap-2 text-white/80 hover:text-white">
         <i class="fas fa-arrow-left"></i>
         <span>Back to Movie</span>
       </router-link>
@@ -292,7 +292,7 @@ export default {
                   message: 'Payment successful! You can now watch the movie.',
                   type: 'success'
                 });
-                router.push(`/movie/${movieId.value}`);
+                router.push(`/ott/${movieId.value}`);
               } else {
                 throw new Error('Payment verification failed');
               }

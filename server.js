@@ -13,32 +13,43 @@ const API_BASE_URL = 'https://ott.no1news.in'
 // Serve .well-known files for Deep Links (Android App Links & iOS Universal Links)
 app.get('/.well-known/assetlinks.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json')
-  // Try dist folder first (production), then public folder (development)
-  const distPath = path.join(__dirname, 'dist/.well-known/assetlinks.json')
-  const publicPath = path.join(__dirname, 'public/.well-known/assetlinks.json')
   
-  if (fs.existsSync(distPath)) {
-    res.sendFile(distPath)
-  } else if (fs.existsSync(publicPath)) {
-    res.sendFile(publicPath)
-  } else {
-    res.status(404).json({ error: 'assetlinks.json not found' })
-  }
+  // Android App Links configuration - serve directly
+  const assetlinks = [{
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.sagiam.vagmi.no1ott",
+      "sha256_cert_fingerprints": [
+        "A8:3A:A6:63:49:FE:A1:D6:E0:21:95:4C:2A:CC:4D:19:14:51:6A:24:F9:2C:06:6E:8A:DC:CD:DD:5C:E6:9D:1A",
+        "90:D2:D6:54:5F:10:E8:AE:44:21:3F:AA:49:EC:59:2B:57:40:5C:F8:DA:43:72:5A:C4:01:9E:ED:F6:8E:FD:C3"
+      ]
+    }
+  }]
+  
+  res.json(assetlinks)
 })
 
 app.get('/.well-known/apple-app-site-association', (req, res) => {
   res.setHeader('Content-Type', 'application/json')
-  // Try dist folder first (production), then public folder (development)
-  const distPath = path.join(__dirname, 'dist/.well-known/apple-app-site-association')
-  const publicPath = path.join(__dirname, 'public/.well-known/apple-app-site-association')
   
-  if (fs.existsSync(distPath)) {
-    res.sendFile(distPath)
-  } else if (fs.existsSync(publicPath)) {
-    res.sendFile(publicPath)
-  } else {
-    res.status(404).json({ error: 'apple-app-site-association not found' })
+  // iOS Universal Links configuration - serve directly
+  const appleAppSiteAssociation = {
+    "applinks": {
+      "apps": [],
+      "details": [
+        {
+          "appID": "TEAM_ID.com.sagiam.vagmi.no1ott",
+          "paths": ["/ott/*", "/*"]
+        }
+      ]
+    },
+    "webcredentials": {
+      "apps": ["TEAM_ID.com.sagiam.vagmi.no1ott"]
+    }
   }
+  
+  res.json(appleAppSiteAssociation)
 })
 
 // Debug route to test server

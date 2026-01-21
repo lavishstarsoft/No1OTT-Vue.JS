@@ -13,12 +13,32 @@ const API_BASE_URL = 'https://ott.no1news.in'
 // Serve .well-known files for Deep Links (Android App Links & iOS Universal Links)
 app.get('/.well-known/assetlinks.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json')
-  res.sendFile(path.join(__dirname, 'public/.well-known/assetlinks.json'))
+  // Try dist folder first (production), then public folder (development)
+  const distPath = path.join(__dirname, 'dist/.well-known/assetlinks.json')
+  const publicPath = path.join(__dirname, 'public/.well-known/assetlinks.json')
+  
+  if (fs.existsSync(distPath)) {
+    res.sendFile(distPath)
+  } else if (fs.existsSync(publicPath)) {
+    res.sendFile(publicPath)
+  } else {
+    res.status(404).json({ error: 'assetlinks.json not found' })
+  }
 })
 
 app.get('/.well-known/apple-app-site-association', (req, res) => {
   res.setHeader('Content-Type', 'application/json')
-  res.sendFile(path.join(__dirname, 'public/.well-known/apple-app-site-association'))
+  // Try dist folder first (production), then public folder (development)
+  const distPath = path.join(__dirname, 'dist/.well-known/apple-app-site-association')
+  const publicPath = path.join(__dirname, 'public/.well-known/apple-app-site-association')
+  
+  if (fs.existsSync(distPath)) {
+    res.sendFile(distPath)
+  } else if (fs.existsSync(publicPath)) {
+    res.sendFile(publicPath)
+  } else {
+    res.status(404).json({ error: 'apple-app-site-association not found' })
+  }
 })
 
 // Debug route to test server

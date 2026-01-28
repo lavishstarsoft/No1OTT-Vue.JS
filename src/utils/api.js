@@ -18,13 +18,13 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
     // Add CSRF token for all requests when available
     const csrfToken = localStorage.getItem('csrfToken');
     if (csrfToken) {
       config.headers['X-CSRFToken'] = csrfToken;
     }
-    
+
     return config;
   },
   (error) => {
@@ -41,14 +41,15 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       localStorage.setItem('isAuthenticated', 'false');
-      
+
       // Get current path for redirect
-      const currentPath = window.location.hash.slice(1); // Remove the '#' from the hash
-      
+      // Get current path for redirect
+      const currentPath = window.location.pathname + window.location.search;
+
       // Only redirect if not already on login page
-      if (!window.location.href.includes('/login')) {
+      if (!window.location.pathname.includes('/login')) {
         // Store current path and redirect to login
-        window.location.href = `/#/login?redirect=${encodeURIComponent(currentPath)}`;
+        window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
       }
     }
     return Promise.reject(error);

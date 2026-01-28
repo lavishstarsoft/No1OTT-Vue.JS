@@ -381,7 +381,7 @@ export default {
             this.isLoading = true;
             this.otpError = ''; // Clear previous errors
             
-            const response = await fetch(`${this.apiBaseUrl}/users/users/login/`, {
+            const response = await fetch(`${this.apiBaseUrl}/users/login/`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

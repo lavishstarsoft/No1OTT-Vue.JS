@@ -13,7 +13,7 @@ const API_BASE_URL = 'https://ott.no1news.in'
 // Serve .well-known files for Deep Links (Android App Links & iOS Universal Links)
 app.get('/.well-known/assetlinks.json', (req, res) => {
   res.setHeader('Content-Type', 'application/json')
-  
+
   // Android App Links configuration - serve directly
   const assetlinks = [{
     "relation": ["delegate_permission/common.handle_all_urls"],
@@ -22,33 +22,34 @@ app.get('/.well-known/assetlinks.json', (req, res) => {
       "package_name": "com.sagiam.vagmi.no1ott",
       "sha256_cert_fingerprints": [
         "A8:3A:A6:63:49:FE:A1:D6:E0:21:95:4C:2A:CC:4D:19:14:51:6A:24:F9:2C:06:6E:8A:DC:CD:DD:5C:E6:9D:1A",
-        "90:D2:D6:54:5F:10:E8:AE:44:21:3F:AA:49:EC:59:2B:57:40:5C:F8:DA:43:72:5A:C4:01:9E:ED:F6:8E:FD:C3"
+        "90:D2:D6:54:5F:10:E8:AE:44:21:3F:AA:49:EC:59:2B:57:40:5C:F8:DA:43:72:5A:C4:01:9E:ED:F6:8E:FD:C3",
+        "F3:26:02:62:64:0E:2D:F1:EA:6D:12:C5:5B:B0:B6:7C:E1:98:24:E7:9F:95:F9:77:28:37:51:EE:21:CD:45:FA"
       ]
     }
   }]
-  
+
   res.json(assetlinks)
 })
 
 app.get('/.well-known/apple-app-site-association', (req, res) => {
   res.setHeader('Content-Type', 'application/json')
-  
+
   // iOS Universal Links configuration - serve directly
   const appleAppSiteAssociation = {
     "applinks": {
       "apps": [],
       "details": [
         {
-          "appID": "TEAM_ID.com.sagiam.vagmi.no1ott",
+          "appID": "TEAM_ID.com.sagiam.vagmi.no1ott", // TODO: Replace TEAM_ID with your actual Apple Team ID (e.g., 85T73...)
           "paths": ["/ott/*", "/*"]
         }
       ]
     },
     "webcredentials": {
-      "apps": ["TEAM_ID.com.sagiam.vagmi.no1ott"]
+      "apps": ["TEAM_ID.com.sagiam.vagmi.no1ott"] // TODO: Replace TEAM_ID here as well
     }
   }
-  
+
   res.json(appleAppSiteAssociation)
 })
 

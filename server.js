@@ -23,7 +23,8 @@ app.get('/.well-known/assetlinks.json', (req, res) => {
       "sha256_cert_fingerprints": [
         "A8:3A:A6:63:49:FE:A1:D6:E0:21:95:4C:2A:CC:4D:19:14:51:6A:24:F9:2C:06:6E:8A:DC:CD:DD:5C:E6:9D:1A",
         "90:D2:D6:54:5F:10:E8:AE:44:21:3F:AA:49:EC:59:2B:57:40:5C:F8:DA:43:72:5A:C4:01:9E:ED:F6:8E:FD:C3",
-        "F3:26:02:62:64:0E:2D:F1:EA:6D:12:C5:5B:B0:B6:7C:E1:98:24:E7:9F:95:F9:77:28:37:51:EE:21:CD:45:FA"
+        "F3:26:02:62:64:0E:2D:F1:EA:6D:12:C5:5B:B0:B6:7C:E1:98:24:E7:9F:95:F9:77:28:37:51:EE:21:CD:45:FA",
+        "8F:D5:D2:79:FC:C3:27:71:FC:D5:F3:11:E0:AD:C7:C4:F0:5C:5E:73:2C:FC:B8:97:11:9C:EF:A8:C1:78:90:6E"
       ]
     }
   }]
